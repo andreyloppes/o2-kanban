@@ -1,0 +1,53 @@
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text-muted);
+  background: transparent;
+  font-family: inherit;
+}
+
+.md {
+  width: 36px;
+  height: 36px;
+}
+
+.sm {
+  width: 28px;
+  height: 28px;
+}
+
+/* Ghost variant */
+.ghost:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* Subtle variant */
+.subtle {
+  color: var(--text-secondary);
+}
+
+.subtle:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* Danger variant */
+.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.iconBtn:active:not(:disabled) {
+  transform: scale(0.95);
+}

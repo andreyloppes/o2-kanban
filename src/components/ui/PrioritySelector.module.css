@@ -1,0 +1,55 @@
+.prioritySelector {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.priorityOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.priorityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.priorityOption:hover {
+  border-color: var(--border-hover);
+}
+
+/* Selected states */
+.selectedLow {
+  border-color: var(--color-neutral) !important;
+  background: rgba(107, 114, 128, 0.15);
+  color: var(--text-primary);
+}
+
+.selectedMedium {
+  border-color: var(--color-warning) !important;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--text-primary);
+}
+
+.selectedHigh {
+  border-color: #f97316 !important;
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--text-primary);
+}
+
+.selectedUrgent {
+  border-color: var(--color-danger) !important;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--text-primary);
+}

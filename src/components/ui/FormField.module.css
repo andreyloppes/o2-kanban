@@ -1,0 +1,22 @@
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.required {
+  color: var(--color-danger);
+  margin-left: 2px;
+}
+
+.errorMsg {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+  margin-top: 2px;
+}

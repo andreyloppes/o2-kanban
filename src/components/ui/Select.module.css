@@ -1,0 +1,94 @@
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  width: 100%;
+  height: var(--input-height);
+  padding: var(--space-2) var(--space-3);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius, var(--radius-md));
+  color: var(--input-text, var(--text-primary));
+  font-size: 0.875rem;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.trigger:hover:not(:disabled) {
+  background: var(--input-bg-hover, #22252a);
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: var(--input-border-focus, var(--accent));
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+.triggerOpen {
+  border-color: var(--input-border-focus, var(--accent));
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+.error {
+  border-color: var(--input-border-error, var(--color-danger)) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
+}
+
+.placeholder {
+  color: var(--input-placeholder, var(--text-muted));
+}
+
+.chevron {
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 900;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--space-1);
+}
+
+.option {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: background 0.15s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+}
+
+.option:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.optionSelected {
+  color: var(--accent);
+}

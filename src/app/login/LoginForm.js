@@ -50,18 +50,29 @@ export default function LoginForm() {
         router.push('/');
         router.refresh();
       } else {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { name },
-          },
+        // Criar usuario via API server (auto-confirmado)
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, name }),
         });
-        if (signUpError) {
-          setError(translateError(signUpError.message));
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || 'Erro ao criar conta.');
           return;
         }
-        setSuccess('Conta criada! Verifique seu email para confirmar o cadastro.');
+
+        // Login automatico apos cadastro
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signInError) {
+          setError(translateError(signInError.message));
+          return;
+        }
+        router.push('/');
+        router.refresh();
       }
     } catch {
       setError('Erro de conexao. Tente novamente.');

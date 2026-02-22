@@ -6,18 +6,52 @@ import { POSITION_GAP, DEFAULT_COLUMNS } from '@/lib/constants';
 export async function GET() {
   const supabase = await createServerClient();
 
-  const { data: boards, error } = await supabase
-    .from('boards')
-    .select('*')
-    .order('created_at', { ascending: false });
+  // Verificar usuario autenticado
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  let boards;
+
+  if (user) {
+    // Auth mode: buscar apenas boards do usuario
+    const { data: memberships } = await supabase
+      .from('board_members')
+      .select('board_id')
+      .eq('user_id', user.id);
+
+    const boardIds = (memberships || []).map((m) => m.board_id);
+
+    if (boardIds.length === 0) {
+      return NextResponse.json({ boards: [] });
+    }
+
+    const { data, error } = await supabase
+      .from('boards')
+      .select('*')
+      .in('id', boardIds)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    boards = data || [];
+  } else {
+    // Mock mode: buscar todos os boards
+    const { data, error } = await supabase
+      .from('boards')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    boards = data || [];
   }
 
   // Enrich with member_count and task_count
   const enriched = await Promise.all(
-    (boards || []).map(async (board) => {
+    boards.map(async (board) => {
       const { data: members } = await supabase
         .from('board_members')
         .select('id')
@@ -71,6 +105,19 @@ export async function POST(request) {
       title: DEFAULT_COLUMNS[i].title,
       color: DEFAULT_COLUMNS[i].color,
       position: (i + 1) * POSITION_GAP,
+    });
+  }
+
+  // Associar usuario autenticado como owner do board
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    await supabase.from('board_members').insert({
+      board_id: board.id,
+      user_id: user.id,
+      role: 'owner',
     });
   }
 

@@ -1,4 +1,5 @@
 import { createServerClient as createSSRServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { MockSupabaseClient } from './mockStore';
 
@@ -33,5 +34,14 @@ export async function createServerClient() {
         },
       },
     }
+  );
+}
+
+// Admin client com service role key — para operacoes privilegiadas (ex: criar usuario)
+export function createAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { autoRefreshToken: false, persistSession: false } }
   );
 }

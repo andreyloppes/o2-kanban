@@ -516,6 +516,11 @@ class MockQueryBuilder {
 }
 
 export class MockSupabaseClient {
+  constructor() {
+    this.auth = {
+      getUser: async () => ({ data: { user: null }, error: null }),
+    };
+  }
   from(table) {
     return new MockQueryBuilder(table);
   }

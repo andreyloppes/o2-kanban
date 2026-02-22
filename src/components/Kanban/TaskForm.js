@@ -2,26 +2,30 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X } from "lucide-react";
+import { motion } from "framer-motion";
+import { modalOverlay, modalContent } from "@/lib/motion";
 import useUIStore from "@/stores/useUIStore";
 import useBoardStore from "@/stores/useBoardStore";
 import { createTaskSchema } from "@/lib/validators";
-import { TEAM_MEMBERS } from "@/lib/constants";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import FormField from "@/components/ui/FormField";
 import TaskTypeSelector from "@/components/ui/TaskTypeSelector";
 import PrioritySelector from "@/components/ui/PrioritySelector";
+import DateInput from "@/components/ui/DateInput";
 import styles from "./TaskForm.module.css";
 
 export default function TaskForm() {
   const isOpen = useUIStore((state) => state.isCreateModalOpen);
   const columnId = useUIStore((state) => state.createModalColumnId);
+  const members = useBoardStore((state) => state.members);
 
   const [title, setTitle] = useState("");
   const [type, setType] = useState("task");
   const [priority, setPriority] = useState("medium");
   const [description, setDescription] = useState("");
   const [assignee, setAssignee] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,6 +47,7 @@ export default function TaskForm() {
       setPriority("medium");
       setDescription("");
       setAssignee("");
+      setDueDate("");
       setErrors({});
       setIsSubmitting(false);
     }
@@ -82,6 +87,7 @@ export default function TaskForm() {
       priority,
       description: description.trim() || null,
       assignee: assignee || null,
+      due_date: dueDate || null,
     };
 
     const result = createTaskSchema.safeParse(formData);
@@ -113,20 +119,23 @@ export default function TaskForm() {
     }
   }
 
-  const memberOptions = TEAM_MEMBERS.map((m) => ({
-    value: m.id,
-    label: m.name,
-  }));
+  const memberOptions = members
+    .filter((m) => m.user)
+    .map((m) => ({ value: m.user.slug, label: m.user.name }));
 
   return (
-    <div
+    <motion.div
       className={styles.overlay}
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-label="Criar nova tarefa"
+      variants={modalOverlay}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
     >
-      <div className={styles.modal} ref={modalRef}>
+      <motion.div className={styles.modal} ref={modalRef} variants={modalContent}>
         <div className={styles.header}>
           <h2 className={styles.headerTitle}>Nova tarefa</h2>
           <button
@@ -176,15 +185,26 @@ export default function TaskForm() {
               />
             </FormField>
 
-            <FormField label="Responsavel" htmlFor="task-assignee">
-              <Select
-                id="task-assignee"
-                value={assignee}
-                onChange={(e) => setAssignee(e.target.value)}
-                options={memberOptions}
-                placeholder="Sem responsavel"
-              />
-            </FormField>
+            <div className={styles.formGrid}>
+              <FormField label="Responsavel" htmlFor="task-assignee">
+                <Select
+                  id="task-assignee"
+                  value={assignee}
+                  onChange={(e) => setAssignee(e.target.value)}
+                  options={memberOptions}
+                  placeholder="Sem responsavel"
+                />
+              </FormField>
+
+              <FormField label="Data limite" htmlFor="task-due-date">
+                <DateInput
+                  id="task-due-date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  placeholder="Sem data"
+                />
+              </FormField>
+            </div>
           </div>
 
           <div className={styles.footer}>
@@ -204,7 +224,7 @@ export default function TaskForm() {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

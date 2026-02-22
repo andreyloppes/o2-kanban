@@ -1,0 +1,83 @@
+.searchBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: var(--search-width);
+  height: var(--input-height-sm);
+  padding: 0 var(--space-3);
+  background: var(--search-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  transition: width var(--transition), border-color var(--transition-fast),
+              background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.searchBar:focus-within {
+  width: var(--search-width-focus);
+  border-color: rgba(52, 211, 153, 0.4);
+  background: var(--search-bg-focus);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1), 0 0 16px rgba(52, 211, 153, 0.08);
+}
+
+.searchIcon {
+  color: var(--search-icon);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.searchBar:focus-within .searchIcon {
+  color: var(--search-icon-focus);
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--input-text);
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  min-width: 0;
+}
+
+.searchInput::placeholder {
+  color: var(--input-placeholder);
+}
+
+.shortcutHint {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0.1rem 0.35rem;
+  background: var(--search-shortcut-bg);
+  border: 1px solid var(--search-shortcut-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--search-shortcut-text);
+  white-space: nowrap;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.clearBtn:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}

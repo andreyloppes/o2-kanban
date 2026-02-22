@@ -1,0 +1,66 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.3px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.sm {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.45rem;
+}
+
+.sm .icon {
+  width: 12px;
+  height: 12px;
+}
+
+.md {
+  font-size: 0.65rem;
+}
+
+.md .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.overdue {
+  background: var(--due-overdue-bg);
+  color: var(--due-overdue-text);
+  border-color: var(--due-overdue-border);
+  animation: overdue-glow 2s ease-in-out infinite;
+}
+
+@keyframes overdue-glow {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(248, 113, 113, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(248, 113, 113, 0.4);
+  }
+}
+
+.today {
+  background: var(--due-today-bg);
+  color: var(--due-today-text);
+  border-color: var(--due-today-border);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.15);
+}
+
+.soon {
+  background: var(--due-soon-bg);
+  color: var(--due-soon-text);
+  border-color: var(--due-soon-border);
+}
+
+.future {
+  background: var(--due-future-bg);
+  color: var(--due-future-text);
+  border-color: var(--due-future-border);
+}

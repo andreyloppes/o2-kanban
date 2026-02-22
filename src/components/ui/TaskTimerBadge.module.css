@@ -1,0 +1,56 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--timer-bg);
+  border: 1px solid var(--timer-border);
+  font-size: 0.75rem;
+  color: var(--timer-text);
+  transition: all var(--transition-fast);
+}
+
+.badge.running {
+  background: var(--timer-bg-running);
+  border-color: var(--timer-border-running);
+  color: var(--timer-text-running);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--timer-dot-running);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: background var(--transition-fast);
+}
+
+.toggleBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

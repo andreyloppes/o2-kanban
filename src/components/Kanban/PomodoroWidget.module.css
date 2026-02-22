@@ -1,0 +1,138 @@
+.widget {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--pomo-idle-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-slow);
+  min-width: 140px;
+}
+
+.widget.focus {
+  background: var(--pomo-focus-bg);
+  border-color: var(--pomo-focus-border);
+  box-shadow: var(--pomo-focus-glow);
+  min-width: 320px;
+  border-radius: var(--radius-lg);
+}
+
+.widget.break {
+  background: var(--pomo-break-bg);
+  border-color: var(--pomo-break-border);
+  box-shadow: var(--pomo-break-glow);
+  min-width: 320px;
+  border-radius: var(--radius-lg);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.focus .icon {
+  color: var(--pomo-focus-text);
+}
+
+.break .icon {
+  color: var(--pomo-break-text);
+}
+
+.modeLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.focus .modeLabel {
+  color: var(--pomo-focus-text);
+}
+
+.break .modeLabel {
+  color: var(--pomo-break-text);
+}
+
+.time {
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  letter-spacing: 0.03em;
+  margin-left: 4px;
+}
+
+.sessions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.actionBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.actionBtnActive {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.progressBar {
+  height: var(--pomo-progress-height);
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.progressFill {
+  height: 100%;
+  transition: width 1s linear;
+}
+
+.focus .progressFill {
+  background: var(--pomo-focus-text);
+}
+
+.break .progressFill {
+  background: var(--pomo-break-text);
+}

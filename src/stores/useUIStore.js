@@ -50,6 +50,62 @@ const useUIStore = create((set, get) => ({
     }),
   hideConfirmDialog: () => set({ confirmDialog: null }),
 
+  // === Filtros ===
+  filters: {
+    type: null,
+    priority: null,
+    assignee: null,
+    search: '',
+  },
+
+  setFilter: (filterKey, value) =>
+    set((state) => ({
+      filters: {
+        ...state.filters,
+        [filterKey]: value,
+      },
+    })),
+
+  clearFilters: () =>
+    set({
+      filters: {
+        type: null,
+        priority: null,
+        assignee: null,
+        search: '',
+      },
+    }),
+
+  hasActiveFilters: () => {
+    const { type, priority, assignee, search } = get().filters;
+    return type !== null || priority !== null || assignee !== null || search !== '';
+  },
+
+  // === Pomodoro ===
+  pomodoro: {
+    mode: 'idle', // 'idle' | 'focus' | 'shortBreak' | 'longBreak'
+    timeRemainingMs: 25 * 60 * 1000,
+    isRunning: false,
+    completedSessions: 0,
+    linkedTaskId: null,
+  },
+
+  setPomodoroState: (updates) =>
+    set((state) => ({
+      pomodoro: { ...state.pomodoro, ...updates },
+    })),
+
+  resetPomodoro: () =>
+    set({
+      pomodoro: {
+        mode: 'idle',
+        timeRemainingMs: 25 * 60 * 1000,
+        isRunning: false,
+        completedSessions: 0,
+        linkedTaskId: null,
+      },
+    }),
+
   // === Toasts ===
   toasts: [],
   addToast: (message, type = 'success') => {

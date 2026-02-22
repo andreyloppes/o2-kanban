@@ -16,11 +16,16 @@ export async function PATCH(request, { params }) {
     );
   }
 
-  const { column_id, position } = parsed.data;
+  const { column_id, position, column_entered_at } = parsed.data;
+
+  const updateData = { column_id, position };
+  if (column_entered_at) {
+    updateData.column_entered_at = column_entered_at;
+  }
 
   const { data: task, error } = await supabase
     .from('tasks')
-    .update({ column_id, position })
+    .update(updateData)
     .eq('id', taskId)
     .select()
     .single();

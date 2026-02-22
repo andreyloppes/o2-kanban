@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { X, Copy, BookOpen, Bug, Zap, Circle, Trash2 } from "lucide-react";
 import useUIStore from "@/stores/useUIStore";
 import useBoardStore from "@/stores/useBoardStore";
-import { TASK_TYPES, TEAM_MEMBERS } from "@/lib/constants";
+import { TASK_TYPES } from "@/lib/constants";
 import { updateTaskSchema } from "@/lib/validators";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
@@ -12,6 +12,12 @@ import FormField from "@/components/ui/FormField";
 import TaskTypeSelector from "@/components/ui/TaskTypeSelector";
 import PrioritySelector from "@/components/ui/PrioritySelector";
 import IconButton from "@/components/ui/IconButton";
+import DateInput from "@/components/ui/DateInput";
+import { motion } from "framer-motion";
+import { modalOverlay, modalContent } from "@/lib/motion";
+import TaskTimerControls from "@/components/ui/TaskTimerControls";
+import { getColumnAgeStatus } from "@/lib/dateUtils";
+import CommentSection from "./CommentSection";
 import styles from "./TaskModal.module.css";
 
 const TYPE_ICONS = {
@@ -39,6 +45,7 @@ export default function TaskModal() {
     activeTaskId ? state.getTaskById(activeTaskId) : null
   );
   const columns = useBoardStore((state) => state.columns);
+  const members = useBoardStore((state) => state.members);
 
   // Editable state
   const [editTitle, setEditTitle] = useState("");
@@ -46,6 +53,7 @@ export default function TaskModal() {
   const [editPriority, setEditPriority] = useState("medium");
   const [editDescription, setEditDescription] = useState("");
   const [editAssignee, setEditAssignee] = useState("");
+  const [editDueDate, setEditDueDate] = useState("");
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
@@ -57,6 +65,7 @@ export default function TaskModal() {
       setEditPriority(task.priority || "medium");
       setEditDescription(task.description || "");
       setEditAssignee(task.assignee || "");
+      setEditDueDate(task.due_date || "");
       setErrors({});
       setIsSaving(false);
     }
@@ -70,9 +79,10 @@ export default function TaskModal() {
       editType !== (task.type || "task") ||
       editPriority !== (task.priority || "medium") ||
       editDescription !== (task.description || "") ||
-      editAssignee !== (task.assignee || "")
+      editAssignee !== (task.assignee || "") ||
+      editDueDate !== (task.due_date || "")
     );
-  }, [task, editTitle, editType, editPriority, editDescription, editAssignee]);
+  }, [task, editTitle, editType, editPriority, editDescription, editAssignee, editDueDate]);
 
   const handleClose = useCallback(() => {
     if (isDirty) {
@@ -119,6 +129,8 @@ export default function TaskModal() {
       updates.description = editDescription.trim() || null;
     if (editAssignee !== (task.assignee || ""))
       updates.assignee = editAssignee || null;
+    if (editDueDate !== (task.due_date || ""))
+      updates.due_date = editDueDate || null;
 
     const result = updateTaskSchema.safeParse(updates);
     if (!result.success) {
@@ -174,20 +186,23 @@ export default function TaskModal() {
 
   const currentColumn = columns.find((c) => c.id === task.column_id);
 
-  const memberOptions = TEAM_MEMBERS.map((m) => ({
-    value: m.id,
-    label: m.name,
-  }));
+  const memberOptions = members
+    .filter((m) => m.user)
+    .map((m) => ({ value: m.user.slug, label: m.user.name }));
 
   return (
-    <div
+    <motion.div
       className={styles.overlay}
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="task-modal-title"
+      variants={modalOverlay}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
     >
-      <div className={styles.modal}>
+      <motion.div className={styles.modal} variants={modalContent}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <TypeIcon size={16} />
@@ -234,15 +249,28 @@ export default function TaskModal() {
             />
           </FormField>
 
-          <FormField label="Responsavel" htmlFor="modal-assignee">
-            <Select
-              id="modal-assignee"
-              value={editAssignee}
-              onChange={(e) => setEditAssignee(e.target.value)}
-              options={memberOptions}
-              placeholder="Sem responsavel"
-            />
-          </FormField>
+          <div className={styles.formGrid}>
+            <FormField label="Responsavel" htmlFor="modal-assignee">
+              <Select
+                id="modal-assignee"
+                value={editAssignee}
+                onChange={(e) => setEditAssignee(e.target.value)}
+                options={memberOptions}
+                placeholder="Sem responsavel"
+              />
+            </FormField>
+
+            <FormField label="Data limite" htmlFor="modal-due-date">
+              <DateInput
+                id="modal-due-date"
+                value={editDueDate}
+                onChange={(e) => setEditDueDate(e.target.value)}
+                placeholder="Sem data"
+              />
+            </FormField>
+          </div>
+
+          <TaskTimerControls taskId={task.id} />
 
           <div className={styles.metaSection}>
             <div className={styles.metaRow}>
@@ -257,7 +285,20 @@ export default function TaskModal() {
                 {formatDate(task.created_at)}
               </span>
             </div>
+            {(() => {
+              const age = getColumnAgeStatus(task.column_entered_at);
+              if (!age) return null;
+              const label = age.days === 1 ? '1 dia' : `${age.days} dias`;
+              return (
+                <div className={styles.metaRow}>
+                  <span className={styles.metaLabel}>Na coluna</span>
+                  <span className={styles.metaValue}>{label}</span>
+                </div>
+              );
+            })()}
           </div>
+
+          <CommentSection taskId={task.id} />
         </div>
 
         <div className={styles.footer}>
@@ -288,7 +329,7 @@ export default function TaskModal() {
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

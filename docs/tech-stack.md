@@ -1,11 +1,11 @@
-# O2 Kanban -- Tech Stack & Dependencias (Sprint 1)
+# O2 Kanban -- Tech Stack & Dependencias (Sprint 1 + Sprint 2)
 
 > **Documento:** Especificacao de Pacotes e Configuracoes
-> **Projeto:** O2 Kanban -- Sprint 1 Enhancement
+> **Projeto:** O2 Kanban -- Sprint 1 + Sprint 2 Enhancement
 > **Fase:** Phase 3 -- Validation & Sharding
 > **Data:** 20 de Fevereiro de 2026
 > **Autor:** Pax (Product Owner Agent)
-> **Versao:** 1.0
+> **Versao:** 1.1 (atualizado com Sprint 2)
 
 ---
 
@@ -61,23 +61,72 @@ npm install @supabase/supabase-js zustand zod
 
 ---
 
-## 3. Dependencias NAO Instalar no Sprint 1
+## 3. Novas Dependencias Sprint 2 (DevDependencies -- Testes)
+
+### Comando de Instalacao
+
+```bash
+npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
+```
+
+### Detalhamento
+
+| Pacote | Versao | Tamanho | Proposito |
+|--------|:------:|:-------:|-----------|
+| `vitest` | ^3.x | devDep | Test runner rapido com ESM nativo, alternativa ao Jest |
+| `@testing-library/react` | ^16.x | devDep | Renderizacao de componentes React para testes |
+| `@testing-library/jest-dom` | ^6.x | devDep | Matchers extras para DOM (toBeInTheDocument, etc.) |
+| `@testing-library/user-event` | ^14.x | devDep | Simulacao realista de interacoes do usuario |
+| `jsdom` | ^26.x | devDep | Ambiente DOM para testes (substitui browser) |
+
+### Impacto no Bundle Sprint 2
+
+| Metrica | Sprint 1 | Sprint 2 | Delta |
+|---------|:--------:|:--------:|:-----:|
+| Deps producao | 9 pacotes | 9 pacotes | 0 |
+| Deps dev | 3 pacotes | 8 pacotes | +5 |
+| Bundle size (estimativa) | ~149KB (gzipped) | ~151KB (gzipped) | +~2KB (dateUtils + FilterBar) |
+
+> **Nota:** Todas as dependencias de teste sao devDependencies e **nao afetam o bundle de producao**.
+
+### Nenhuma Dependencia de Producao Nova no Sprint 2
+
+O Sprint 2 nao requer novas dependencias de producao. Tudo e construido com o stack existente:
+- Filtros: Zustand + React (ja instalados)
+- Comentarios: Supabase + Zustand + React (ja instalados)
+- Due date: Funcoes utilitarias puras (sem dependencia)
+- CSS: CSS Modules + globals.css (padrao existente)
+
+### Scripts npm Adicionais (Sprint 2)
+
+Adicionar ao `package.json`:
+```json
+{
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
+  }
+}
+```
+
+---
+
+## 4. Dependencias NAO Instalar nos Sprints 1-2
 
 Estes pacotes estao planejados para sprints futuros:
 
 | Pacote | Sprint Planejado | Proposito |
 |--------|:----------------:|-----------|
-| `vitest` | Sprint 2 | Testes unitarios/integracao |
-| `@testing-library/react` | Sprint 2 | Testes de componentes React |
-| `@testing-library/jest-dom` | Sprint 2 | Matchers extras para testes DOM |
 | `playwright` | Sprint 4 | Testes end-to-end |
 | `@supabase/ssr` | Sprint 3 | Helpers SSR para auth cookies (quando auth for implementado) |
 
 ---
 
-## 4. Variaveis de Ambiente
+## 5. Variaveis de Ambiente
 
-### 4.1 Criar `.env.local`
+### 5.1 Criar `.env.local`
 
 ```bash
 # Supabase -- Obter em https://app.supabase.com > Settings > API
@@ -86,7 +135,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=[SUA-ANON-KEY]
 SUPABASE_SERVICE_ROLE_KEY=[SUA-SERVICE-ROLE-KEY]
 ```
 
-### 4.2 Criar `.env.example` (template para devs, sem valores)
+### 5.2 Criar `.env.example` (template para devs, sem valores)
 
 ```bash
 # Supabase -- Obter em https://app.supabase.com > Settings > API
@@ -95,7 +144,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-### 4.3 Detalhamento das Variaveis
+### 5.3 Detalhamento das Variaveis
 
 | Variavel | Prefixo | Exposicao | Onde Usar | Descricao |
 |----------|---------|:---------:|-----------|-----------|
@@ -103,7 +152,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `NEXT_PUBLIC_` | Client + Server | `lib/supabase/client.js` | Chave anonima (publica). Segura para expor no client -- protegida por RLS. |
 | `SUPABASE_SERVICE_ROLE_KEY` | (nenhum) | Apenas Server | `lib/supabase/server.js` | Chave de servico (privilegiada). **NUNCA expor no client.** Usada apenas em API routes server-side. Bypass RLS. |
 
-### 4.4 Adicionar ao `.gitignore`
+### 5.4 Adicionar ao `.gitignore`
 
 ```
 # Env files
@@ -115,9 +164,9 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 ---
 
-## 5. Configuracao Supabase
+## 6. Configuracao Supabase
 
-### 5.1 Criar Projeto no Supabase
+### 6.1 Criar Projeto no Supabase
 
 1. Acessar https://app.supabase.com
 2. Criar novo projeto (nome sugerido: `o2-kanban`)
@@ -125,7 +174,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 4. Definir senha do banco de dados
 5. Aguardar provisionamento (~2 minutos)
 
-### 5.2 Obter Credenciais
+### 6.2 Obter Credenciais
 
 1. Ir em **Settings > API**
 2. Copiar:
@@ -133,7 +182,7 @@ SUPABASE_SERVICE_ROLE_KEY=
    - `anon/public` key -> `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `service_role` key -> `SUPABASE_SERVICE_ROLE_KEY`
 
-### 5.3 Executar Schema SQL
+### 6.3 Executar Schema SQL
 
 1. Ir em **SQL Editor** no Supabase Dashboard
 2. Executar o SQL de criacao de tabelas (definido em `architecture-sprint1.md` secao 3.1)
@@ -143,7 +192,7 @@ SUPABASE_SERVICE_ROLE_KEY=
    - 6 colunas (A Fazer, Priorizado, Em Progresso, Revisao, Concluido, Backlog)
    - 4 tasks iniciais
 
-### 5.4 Free Tier -- Limites
+### 6.4 Free Tier -- Limites
 
 | Recurso | Limite Free Tier | Uso Estimado Sprint 1 |
 |---------|:----------------:|:---------------------:|
@@ -158,19 +207,19 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 ---
 
-## 6. Configuracoes Existentes (Nao Alterar)
+## 7. Configuracoes Existentes (Nao Alterar)
 
-### 6.1 next.config.mjs
+### 7.1 next.config.mjs
 
 O arquivo de configuracao do Next.js ja contem:
 - `reactCompiler: true` -- React Compiler habilitado
 - Nenhuma alteracao necessaria para Sprint 1
 
-### 6.2 ESLint
+### 7.2 ESLint
 
 Configuracao existente (`eslint-config-next`) e suficiente. Nenhuma alteracao necessaria.
 
-### 6.3 CSS
+### 7.3 CSS
 
 - `globals.css` -- Design tokens existentes (sera ESTENDIDO com ~40 novos tokens)
 - `kanban.css` -- Estilos globais (sera ESTENDIDO com estilos de collapse)
@@ -179,26 +228,27 @@ Configuracao existente (`eslint-config-next`) e suficiente. Nenhuma alteracao ne
 
 ---
 
-## 7. Stack Consolidada (Sprint 1)
+## 8. Stack Consolidada (Sprint 1 + Sprint 2)
 
 ```
-CAMADA            TECNOLOGIA              STATUS         NOTAS
------------       ----------------------  ----------     ---------------------------
-Framework         Next.js 16 (App Router) Existente      Nao alterar
-UI                React 19                Existente      React Compiler habilitado
-DnD               @dnd-kit (3 pacotes)    Existente      Core + Sortable + Utilities
-Icones            lucide-react            Existente      Tree-shakeable
-Backend/DB        Supabase (PostgreSQL)   NOVO           SDK @supabase/supabase-js
-State             Zustand                 NOVO           2 stores (board, ui)
-Validacao         Zod                     NOVO           Schemas para API e forms
-Estilos           CSS Modules + tokens    Existente*     *Novos componentes em Modules
-Linting           ESLint + eslint-next    Existente      Nao alterar
-Compilacao        babel-plugin-react-compiler  Existente  Nao alterar
+CAMADA            TECNOLOGIA              STATUS S1      STATUS S2      NOTAS
+-----------       ----------------------  ----------     ----------     ---------------------------
+Framework         Next.js 16 (App Router) Existente      Mantido        Nao alterar
+UI                React 19                Existente      Mantido        React Compiler habilitado
+DnD               @dnd-kit (3 pacotes)    Existente      Mantido        Core + Sortable + Utilities
+Icones            lucide-react            Existente      Mantido        Tree-shakeable
+Backend/DB        Supabase (PostgreSQL)   NOVO S1        Mantido        SDK @supabase/supabase-js
+State             Zustand                 NOVO S1        Estendido      2 stores (board, ui) + filtros + comments
+Validacao         Zod                     NOVO S1        Estendido      + createCommentSchema
+Estilos           CSS Modules + tokens    Existente*     Estendido      + ~30 tokens (filter, due, comment, search)
+Linting           ESLint + eslint-next    Existente      Mantido        Nao alterar
+Compilacao        babel-plugin-react-compiler  Existente  Mantido       Nao alterar
+Testes            --                      N/A            NOVO S2        Vitest + Testing Library + jsdom
 ```
 
 ---
 
-## 8. Checklist de Setup
+## 9. Checklist de Setup
 
 Antes de iniciar a implementacao dos componentes, o Dex deve verificar:
 
@@ -214,7 +264,17 @@ Antes de iniciar a implementacao dos componentes, o Dex deve verificar:
 - [ ] `npm run dev` inicia sem erros
 - [ ] Console do browser sem erros de conexao Supabase
 
+### Checklist Adicional Sprint 2
+
+- [ ] `npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom` executado sem erros
+- [ ] `vitest.config.js` criado na raiz do projeto
+- [ ] `src/test/setup.js` criado
+- [ ] Scripts test, test:watch, test:coverage adicionados ao package.json
+- [ ] `npm test` executa sem erros
+- [ ] `supabase/migration-sprint2.sql` executado no Supabase SQL Editor
+- [ ] Tabela `task_comments` visivel no Table Editor
+
 ---
 
-> **Documento preparado por Pax (Product Owner Agent)**
-> **Para uso do Dex (Dev Agent) -- Fevereiro 2026**
+> **Documento atualizado por Pax (Product Owner Agent)**
+> **Sprint 2 adicionado -- Fevereiro 2026**

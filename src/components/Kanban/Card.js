@@ -3,6 +3,9 @@ import { CSS } from "@dnd-kit/utilities";
 import { Copy, BookOpen, Bug, Zap, Circle } from "lucide-react";
 import { TASK_TYPES } from "@/lib/constants";
 import Badge from "@/components/ui/Badge";
+import DueDateBadge from "@/components/ui/DueDateBadge";
+import TaskTimerBadge from "@/components/ui/TaskTimerBadge";
+import ColumnAgeBadge from "@/components/ui/ColumnAgeBadge";
 import useUIStore from "@/stores/useUIStore";
 
 const getTypeIcon = (type) => {
@@ -78,6 +81,15 @@ export default function Card({ task }) {
                 {tag}
               </span>
             ))}
+        </div>
+      )}
+
+      {task.due_date && <DueDateBadge dueDate={task.due_date} size="sm" />}
+
+      {(task.timer_elapsed_ms > 0 || task.timer_running || task.column_entered_at) && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <TaskTimerBadge taskId={task.id} />
+          <ColumnAgeBadge columnEnteredAt={task.column_entered_at} />
         </div>
       )}
 

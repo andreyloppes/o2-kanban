@@ -1,0 +1,26 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.neutral {
+  background: var(--age-neutral-bg);
+  color: var(--age-neutral-text);
+}
+
+.warning {
+  background: var(--age-warning-bg);
+  color: var(--age-warning-text);
+  border: 1px solid var(--age-warning-border);
+}
+
+.danger {
+  background: var(--age-danger-bg);
+  color: var(--age-danger-text);
+  border: 1px solid var(--age-danger-border);
+}

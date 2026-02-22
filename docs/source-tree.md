@@ -1,11 +1,11 @@
-# O2 Kanban -- Source Tree (Sprint 1)
+# O2 Kanban -- Source Tree (Sprint 1 + Sprint 2)
 
 > **Documento:** Lista de Arquivos a Criar e Modificar
-> **Projeto:** O2 Kanban -- Sprint 1 Enhancement
+> **Projeto:** O2 Kanban -- Sprint 1 + Sprint 2 Enhancement
 > **Fase:** Phase 3 -- Validation & Sharding
 > **Data:** 20 de Fevereiro de 2026
 > **Autor:** Pax (Product Owner Agent)
-> **Versao:** 1.0
+> **Versao:** 1.1 (atualizado com Sprint 2)
 
 ---
 
@@ -217,5 +217,198 @@ Esta lista esta **ordenada por dependencia** -- implemente de cima para baixo. C
 
 ---
 
-> **Documento preparado por Pax (Product Owner Agent)**
-> **Para uso do Dex (Dev Agent) -- Fevereiro 2026**
+---
+
+# SPRINT 2: Source Tree Adicional
+
+> **Adicionado em:** 20 de Fevereiro de 2026
+> **Baseado em:** architecture-sprint2.md (Aria) + frontend-spec-sprint2.md (Uma) + validation-sprint2.md (Pax)
+
+As fases abaixo sao executadas **apos o Sprint 1 estar completo**. A numeracao continua sequencialmente.
+
+---
+
+## Fase S2.0: Infraestrutura de Testes
+
+```
+[MODIFY] package.json                                  -- Adicionar devDependencies: vitest, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event, jsdom
+[CREATE] vitest.config.js                               -- Configuracao Vitest (jsdom, aliases, coverage)
+[CREATE] src/test/setup.js                              -- Setup do ambiente de testes (@testing-library/jest-dom)
+```
+
+**Validacao:**
+- `npm test` executa sem erros (mesmo sem testes ainda)
+
+---
+
+## Fase S2.1: Schema + API de Comentarios
+
+```
+[CREATE] supabase/migration-sprint2.sql                 -- Tabela task_comments + indices para filtros
+[EXECUTE] SQL: Executar migration-sprint2.sql            -- Via Supabase Dashboard > SQL Editor
+[MODIFY] src/lib/validators.js                          -- Adicionar createCommentSchema (Zod)
+[CREATE] src/app/api/tasks/[taskId]/comments/route.js   -- GET: listar comentarios | POST: criar comentario
+[CREATE] src/app/api/tasks/[taskId]/comments/[commentId]/route.js -- DELETE: deletar comentario
+```
+
+**Validacao:**
+- Tabela task_comments visivel no Supabase Table Editor
+- GET/POST/DELETE de comentarios testados manualmente
+
+---
+
+## Fase S2.2: Utilitarios
+
+```
+[CREATE] src/lib/dateUtils.js                           -- getDueDateStatus, getDueDateLabel, formatDueDateShort
+[CREATE] src/hooks/useDebounce.js                       -- Hook generico de debounce para reuso
+```
+
+**Validacao:**
+- Funcoes exportam corretamente
+- Testes unitarios de dateUtils passam
+
+---
+
+## Fase S2.3: Store Changes
+
+```
+[MODIFY] src/stores/useUIStore.js                       -- Adicionar: filters{}, setFilter(), clearFilters(), hasActiveFilters()
+[MODIFY] src/stores/useBoardStore.js                    -- Adicionar: getFilteredTasksByColumn(), commentsCache{}, fetchComments(), addComment(), deleteComment()
+[MODIFY] src/lib/constants.js                           -- Adicionar COMMENT_AUTHOR_KEY (localStorage)
+[MODIFY] src/types/index.js                             -- Adicionar typedef Comment
+```
+
+**Validacao:**
+- Stores importam sem erros
+- getFilteredTasksByColumn retorna tasks filtradas corretamente
+- Actions de comentarios chamam API routes
+
+---
+
+## Fase S2.4: Novos Componentes Atomicos (ui/)
+
+```
+[CREATE] src/components/ui/DateInput.js                 -- Campo de input de data com picker nativo
+[CREATE] src/components/ui/DateInput.module.css          -- Estilos do DateInput
+[CREATE] src/components/ui/FilterChip.js                -- Chip de filtro ativo com botao remover
+[CREATE] src/components/ui/FilterChip.module.css         -- Estilos do FilterChip
+[CREATE] src/components/ui/DueDateBadge.js              -- Badge de due date com cor semantica
+[CREATE] src/components/ui/DueDateBadge.module.css       -- Estilos do DueDateBadge
+[CREATE] src/components/ui/SearchBar.js                 -- Campo de busca com icone e debounce
+[CREATE] src/components/ui/SearchBar.module.css          -- Estilos do SearchBar
+[CREATE] src/components/ui/FilterDropdown.js            -- Dropdown com multi-select para filtros
+[CREATE] src/components/ui/FilterDropdown.module.css     -- Estilos do FilterDropdown
+[CREATE] src/components/ui/CommentItem.js               -- Comentario individual (avatar, autor, data, conteudo)
+[CREATE] src/components/ui/CommentItem.module.css        -- Estilos do CommentItem
+[CREATE] src/components/ui/CommentInput.js              -- Textarea com botao enviar para novo comentario
+[CREATE] src/components/ui/CommentInput.module.css       -- Estilos do CommentInput
+```
+
+---
+
+## Fase S2.5: Novos Componentes Kanban (Kanban/)
+
+```
+[CREATE] src/components/Kanban/FilterBar.js             -- Barra de filtros no header (SearchBar + FilterDropdowns + FilterChips)
+[CREATE] src/components/Kanban/FilterBar.module.css      -- Estilos da FilterBar
+[CREATE] src/components/Kanban/CommentSection.js        -- Lista de comentarios + formulario dentro do TaskModal
+[CREATE] src/components/Kanban/CommentSection.module.css -- Estilos da CommentSection
+```
+
+---
+
+## Fase S2.6: Modificar Componentes Existentes
+
+```
+[MODIFY] src/app/globals.css                            -- Adicionar ~30 novos tokens (filter, due date, comment, search, layout)
+[MODIFY] src/components/Kanban/Board.js                 -- Adicionar <FilterBar /> no header
+[MODIFY] src/components/Kanban/Column.js                -- Trocar getTasksByColumn por getFilteredTasksByColumn + contagem filtrada
+[MODIFY] src/components/Kanban/Card.js                  -- Adicionar <DueDateBadge /> + borda overdue
+[MODIFY] src/components/Kanban/TaskModal.js             -- Adicionar DateInput + <CommentSection /> + carregar comentarios
+[MODIFY] src/components/Kanban/TaskForm.js              -- Adicionar DateInput para due_date na criacao
+```
+
+**Validacao:**
+- FilterBar renderiza no header do board
+- Filtros funcionam (tipo, prioridade, responsavel, busca)
+- Due date badge visivel nos cards
+- Comentarios carregam ao abrir modal
+- Todos os textos em PT-BR
+
+---
+
+## Fase S2.7: Testes
+
+```
+[CREATE] src/lib/__tests__/validators.test.js           -- Testes de schemas Zod (incluindo createCommentSchema)
+[CREATE] src/lib/__tests__/dateUtils.test.js            -- Testes de getDueDateStatus, getDueDateLabel, formatDueDateShort
+[CREATE] src/stores/__tests__/useUIStore.test.js        -- Testes de setFilter, clearFilters, hasActiveFilters
+[CREATE] src/stores/__tests__/useBoardStore.test.js     -- Testes de getFilteredTasksByColumn
+[CREATE] src/components/Kanban/__tests__/Card.test.js   -- Testes de renderizacao do Card
+[CREATE] src/components/Kanban/__tests__/FilterBar.test.js -- Testes de interacao do FilterBar
+[CREATE] src/components/ui/__tests__/Badge.test.js      -- Testes de variantes do Badge
+```
+
+**Validacao:**
+- `npm test` passa todos os testes
+- `npm run test:coverage` gera relatorio
+
+---
+
+## Fase S2.8: Testes Manuais e Polish
+
+```
+[VERIFY] Filtro por tipo funciona (selecionar Bug -> apenas bugs visiveis)
+[VERIFY] Filtro por prioridade funciona (selecionar Urgente -> apenas urgentes)
+[VERIFY] Filtro por responsavel funciona (selecionar Andrey -> apenas tasks do Andrey)
+[VERIFY] Filtro "Sem responsavel" funciona
+[VERIFY] Busca textual funciona com debounce 300ms
+[VERIFY] Filtros sao compostos (AND entre categorias, OR dentro)
+[VERIFY] Limpar filtros restaura visao completa
+[VERIFY] Indicador visual de filtros ativos
+[VERIFY] Contagem filtrada/total no header da coluna
+[VERIFY] Due date badge no card com cores corretas (vermelho, laranja, indigo, cinza)
+[VERIFY] Borda esquerda vermelha em cards vencidos
+[VERIFY] Campo de data funcional no TaskForm e TaskModal
+[VERIFY] Comentarios carregam ao abrir TaskModal
+[VERIFY] Adicionar comentario com optimistic update
+[VERIFY] Deletar comentario com confirmacao e optimistic update
+[VERIFY] CRUD de tarefas continua funcionando (regressao)
+[VERIFY] DnD continua funcionando (regressao)
+[VERIFY] Sidebar/column collapse continua funcionando (regressao)
+```
+
+---
+
+## Resumo Quantitativo Sprint 2
+
+| Operacao | Quantidade |
+|----------|:---------:|
+| Arquivos a CRIAR | 25 |
+| Arquivos a MODIFICAR | 10 |
+| SQL a EXECUTAR | 1 script (migration-sprint2.sql) |
+| Testes a CRIAR | 7 |
+| Verificacoes manuais | 18 |
+| **TOTAL de arquivos novos/modificados** | **35** |
+
+### Distribuicao por Pasta (Sprint 2)
+
+| Pasta | Criar | Modificar |
+|-------|:-----:|:---------:|
+| `src/lib/` | 1 | 2 |
+| `src/hooks/` | 1 | 0 |
+| `src/stores/` | 0 | 2 |
+| `src/app/api/` | 2 | 0 |
+| `src/components/ui/` | 14 | 0 |
+| `src/components/Kanban/` | 4 | 5 |
+| `src/app/` | 0 | 1 |
+| `src/test/` | 1 | 0 |
+| `src/*/__tests__/` | 7 | 0 |
+| `supabase/` | 1 | 0 |
+| Raiz | 1 | 1 |
+
+---
+
+> **Documento atualizado por Pax (Product Owner Agent)**
+> **Sprint 2 adicionado -- Fevereiro 2026**

@@ -1,4 +1,4 @@
-// ID fixo do board "Oxy" para Sprint 1 (unico board)
+// ID fixo do board "AI GUYS" (board padrao)
 export const DEFAULT_BOARD_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
 
 // Posicao base para novas tasks (incremento grande para float positioning)
@@ -9,14 +9,14 @@ export const TASK_TYPES = {
   task: 'Tarefa',
   user_story: 'User Story',
   bug: 'Bug',
-  epic: 'Épico',
+  epic: 'Epico',
   spike: 'Spike',
 };
 
 // Prioridades com labels em PT-BR
 export const TASK_PRIORITIES = {
   low: 'Baixa',
-  medium: 'Média',
+  medium: 'Media',
   high: 'Alta',
   urgent: 'Urgente',
 };
@@ -40,10 +40,57 @@ export const COLUMN_COLOR_MAP = {
   neutral: 'status-backlog',
 };
 
-// Membros do time
-export const TEAM_MEMBERS = [
-  { id: 'andrey', name: 'Andrey' },
-  { id: 'felipe', name: 'Felipe' },
-  { id: 'caio', name: 'Caio' },
-  { id: 'matheus', name: 'Matheus' },
+// Chave para persistir ultimo autor de comentario no localStorage
+export const COMMENT_AUTHOR_KEY = 'o2kanban_comment_author';
+
+// Chave para persistir usuario atual no localStorage
+export const CURRENT_USER_KEY = 'o2kanban_current_user';
+
+// Roles de board
+export const BOARD_ROLES = {
+  owner: 'Proprietario',
+  member: 'Membro',
+};
+
+// Colunas padrao ao criar novo board
+export const DEFAULT_COLUMNS = [
+  { title: 'Backlog', color: 'neutral' },
+  { title: 'A Fazer', color: 'info' },
+  { title: 'Em Progresso', color: 'progress' },
+  { title: 'Revisao', color: 'review' },
+  { title: 'Concluido', color: 'done' },
 ];
+
+// Cores disponiveis para avatar
+export const AVATAR_COLORS = [
+  '#3b82f6',
+  '#ef4444',
+  '#f59e0b',
+  '#10b981',
+  '#8b5cf6',
+  '#ec4899',
+  '#06b6d4',
+  '#f97316',
+];
+
+// --- Pomodoro ---
+export const POMODORO_DEFAULTS = {
+  focusDurationMs: 25 * 60 * 1000,
+  shortBreakMs: 5 * 60 * 1000,
+  longBreakMs: 15 * 60 * 1000,
+  sessionsBeforeLongBreak: 4,
+  autoStartBreak: true,
+  autoStartFocus: false,
+  linkToTaskTimer: true,
+};
+
+export const POMODORO_SETTINGS_KEY = 'o2kanban_pomodoro_settings';
+
+// --- Column Age Thresholds ---
+export const COLUMN_AGE_THRESHOLDS = {
+  warning: 4,  // dias
+  danger: 8,   // dias
+};
+
+// --- Timer ---
+export const TIMER_UPDATE_INTERVAL_MS = 1000;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DEFAULT_BOARD_ID, POSITION_GAP } from '@/lib/constants';
+import { POSITION_GAP } from '@/lib/constants';
 import useUIStore from '@/stores/useUIStore';
 
 const useBoardStore = create((set, get) => ({
@@ -7,14 +7,49 @@ const useBoardStore = create((set, get) => ({
   board: null,
   columns: [],
   tasks: [],
+  members: [],
   isLoading: true,
   error: null,
+  activeTimerTaskId: null,
+
+  // === Comments Cache ===
+  commentsCache: {},
+  commentsLoading: {},
 
   // === Getters ===
   getTasksByColumn: (columnId) => {
     return get()
       .tasks.filter((t) => t.column_id === columnId)
       .sort((a, b) => a.position - b.position);
+  },
+
+  getFilteredTasksByColumn: (columnId) => {
+    const { filters } = useUIStore.getState();
+    let tasks = get().tasks.filter((t) => t.column_id === columnId);
+
+    if (filters.type) {
+      tasks = tasks.filter((t) => t.type === filters.type);
+    }
+    if (filters.priority) {
+      tasks = tasks.filter((t) => t.priority === filters.priority);
+    }
+    if (filters.assignee) {
+      if (filters.assignee === '__unassigned__') {
+        tasks = tasks.filter((t) => !t.assignee);
+      } else {
+        tasks = tasks.filter((t) => t.assignee === filters.assignee);
+      }
+    }
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      tasks = tasks.filter(
+        (t) =>
+          t.title.toLowerCase().includes(searchLower) ||
+          (t.description && t.description.toLowerCase().includes(searchLower))
+      );
+    }
+
+    return tasks.sort((a, b) => a.position - b.position);
   },
 
   getTaskById: (taskId) => {
@@ -28,9 +63,11 @@ const useBoardStore = create((set, get) => ({
     return maxPos + POSITION_GAP;
   },
 
+  getMemberBySlug: (slug) => get().members.find((m) => m.user?.slug === slug),
+
   // === Actions: Hydration ===
-  hydrate: (board, columns, tasks) => {
-    set({ board, columns, tasks, isLoading: false, error: null });
+  hydrate: (board, columns, tasks, members = []) => {
+    set({ board, columns, tasks, members, isLoading: false, error: null });
   },
 
   setLoading: (isLoading) => set({ isLoading }),
@@ -49,13 +86,17 @@ const useBoardStore = create((set, get) => ({
 
     const optimisticTask = {
       id: tempId,
-      board_id: DEFAULT_BOARD_ID,
+      board_id: get().board?.id,
       position,
       type: 'task',
       priority: 'medium',
       assignee: null,
       description: null,
       due_date: null,
+      column_entered_at: new Date().toISOString(),
+      timer_elapsed_ms: 0,
+      timer_running: false,
+      timer_started_at: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       ...taskData,
@@ -69,6 +110,7 @@ const useBoardStore = create((set, get) => ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          board_id: get().board?.id,
           column_id: taskData.column_id,
           title: taskData.title,
           type: taskData.type || 'task',
@@ -159,6 +201,13 @@ const useBoardStore = create((set, get) => ({
     try {
       const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Falha ao deletar tarefa');
+
+      // Limpar cache de comentarios da task deletada
+      set((state) => {
+        const { [taskId]: _, ...restCache } = state.commentsCache;
+        return { commentsCache: restCache };
+      });
+
       return true;
     } catch (error) {
       // Rollback
@@ -181,6 +230,9 @@ const useBoardStore = create((set, get) => ({
     const previousTask = get().getTaskById(taskId);
     if (!previousTask) return false;
 
+    const isColumnChange = targetColumnId !== previousTask.column_id;
+    const columnEnteredAt = isColumnChange ? new Date().toISOString() : previousTask.column_entered_at;
+
     // Optimistic
     set((state) => ({
       tasks: state.tasks.map((t) =>
@@ -189,6 +241,7 @@ const useBoardStore = create((set, get) => ({
               ...t,
               column_id: targetColumnId,
               position: newPosition,
+              column_entered_at: columnEnteredAt,
               updated_at: new Date().toISOString(),
             }
           : t
@@ -202,6 +255,7 @@ const useBoardStore = create((set, get) => ({
         body: JSON.stringify({
           column_id: targetColumnId,
           position: newPosition,
+          ...(isColumnChange && { column_entered_at: columnEnteredAt }),
         }),
       });
 
@@ -216,6 +270,196 @@ const useBoardStore = create((set, get) => ({
         error: error.message,
       }));
       useUIStore.getState().addToast('Erro ao mover tarefa. Posicao restaurada.', 'error');
+      return false;
+    }
+  },
+
+  // === Actions: Task Timer ===
+
+  /**
+   * Inicia timer de uma task. Se outra task esta com timer, pausa ela primeiro.
+   */
+  startTaskTimer: (taskId) => {
+    const { activeTimerTaskId } = get();
+
+    // Pausar timer anterior se existir
+    if (activeTimerTaskId && activeTimerTaskId !== taskId) {
+      get().pauseTaskTimer(activeTimerTaskId);
+    }
+
+    const now = new Date().toISOString();
+    set((state) => ({
+      activeTimerTaskId: taskId,
+      tasks: state.tasks.map((t) =>
+        t.id === taskId
+          ? { ...t, timer_running: true, timer_started_at: now }
+          : t
+      ),
+    }));
+  },
+
+  /**
+   * Pausa timer de uma task, acumulando o elapsed.
+   */
+  pauseTaskTimer: (taskId) => {
+    const task = get().getTaskById(taskId);
+    if (!task || !task.timer_running) return;
+
+    const elapsed = task.timer_started_at
+      ? Date.now() - new Date(task.timer_started_at).getTime()
+      : 0;
+    const newElapsed = (task.timer_elapsed_ms || 0) + elapsed;
+
+    set((state) => ({
+      activeTimerTaskId: state.activeTimerTaskId === taskId ? null : state.activeTimerTaskId,
+      tasks: state.tasks.map((t) =>
+        t.id === taskId
+          ? { ...t, timer_running: false, timer_started_at: null, timer_elapsed_ms: newElapsed }
+          : t
+      ),
+    }));
+
+    // Persist silently
+    fetch(`/api/tasks/${taskId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timer_elapsed_ms: newElapsed, timer_running: false, timer_started_at: null }),
+    }).catch(() => {});
+  },
+
+  /**
+   * Reseta timer de uma task.
+   */
+  resetTaskTimer: (taskId) => {
+    set((state) => ({
+      activeTimerTaskId: state.activeTimerTaskId === taskId ? null : state.activeTimerTaskId,
+      tasks: state.tasks.map((t) =>
+        t.id === taskId
+          ? { ...t, timer_running: false, timer_started_at: null, timer_elapsed_ms: 0 }
+          : t
+      ),
+    }));
+
+    // Persist silently
+    fetch(`/api/tasks/${taskId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timer_elapsed_ms: 0, timer_running: false, timer_started_at: null }),
+    }).catch(() => {});
+  },
+
+  // === Actions: Comments ===
+
+  fetchComments: async (taskId, force = false) => {
+    if (!force && get().commentsCache[taskId]) {
+      return get().commentsCache[taskId];
+    }
+
+    set((state) => ({
+      commentsLoading: { ...state.commentsLoading, [taskId]: true },
+    }));
+
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/comments`);
+      if (!res.ok) throw new Error('Falha ao carregar comentarios');
+
+      const { comments } = await res.json();
+
+      set((state) => ({
+        commentsCache: { ...state.commentsCache, [taskId]: comments },
+        commentsLoading: { ...state.commentsLoading, [taskId]: false },
+      }));
+
+      return comments;
+    } catch (error) {
+      set((state) => ({
+        commentsLoading: { ...state.commentsLoading, [taskId]: false },
+      }));
+      useUIStore.getState().addToast('Erro ao carregar comentarios', 'error');
+      return [];
+    }
+  },
+
+  addComment: async (taskId, author, content) => {
+    const tempId = `temp-comment-${Date.now()}`;
+    const optimisticComment = {
+      id: tempId,
+      task_id: taskId,
+      board_id: get().board?.id,
+      author,
+      content,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    set((state) => ({
+      commentsCache: {
+        ...state.commentsCache,
+        [taskId]: [...(state.commentsCache[taskId] || []), optimisticComment],
+      },
+    }));
+
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author, content }),
+      });
+
+      if (!res.ok) throw new Error('Falha ao adicionar comentario');
+
+      const { comment: savedComment } = await res.json();
+
+      set((state) => ({
+        commentsCache: {
+          ...state.commentsCache,
+          [taskId]: (state.commentsCache[taskId] || []).map((c) =>
+            c.id === tempId ? savedComment : c
+          ),
+        },
+      }));
+
+      return savedComment;
+    } catch (error) {
+      set((state) => ({
+        commentsCache: {
+          ...state.commentsCache,
+          [taskId]: (state.commentsCache[taskId] || []).filter(
+            (c) => c.id !== tempId
+          ),
+        },
+      }));
+      useUIStore.getState().addToast('Erro ao adicionar comentario', 'error');
+      return null;
+    }
+  },
+
+  deleteComment: async (taskId, commentId) => {
+    const previousComments = get().commentsCache[taskId] || [];
+    const commentToDelete = previousComments.find((c) => c.id === commentId);
+    if (!commentToDelete) return false;
+
+    set((state) => ({
+      commentsCache: {
+        ...state.commentsCache,
+        [taskId]: previousComments.filter((c) => c.id !== commentId),
+      },
+    }));
+
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/comments/${commentId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Falha ao deletar comentario');
+      return true;
+    } catch (error) {
+      set((state) => ({
+        commentsCache: {
+          ...state.commentsCache,
+          [taskId]: previousComments,
+        },
+      }));
+      useUIStore.getState().addToast('Erro ao deletar comentario', 'error');
       return false;
     }
   },

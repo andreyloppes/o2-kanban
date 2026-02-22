@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { modalOverlay, modalContent } from "@/lib/motion";
 import useUIStore from "@/stores/useUIStore";
 import styles from "./ConfirmDialog.module.css";
 
@@ -48,14 +50,17 @@ export default function ConfirmDialog() {
   }
 
   return (
-    <div
+    <motion.div
       className={styles.overlay}
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
+      variants={modalOverlay}
+      initial="hidden"
+      animate="visible"
     >
-      <div className={styles.dialog}>
+      <motion.div className={styles.dialog} variants={modalContent}>
         <h2 id="confirm-dialog-title" className={styles.title}>
           {title || "Confirmar acao"}
         </h2>
@@ -77,7 +82,7 @@ export default function ConfirmDialog() {
             {confirmLabel || "Confirmar"}
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

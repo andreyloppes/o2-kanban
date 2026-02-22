@@ -3,8 +3,8 @@
   align-items: center;
   gap: 4px;
   font-size: 0.65rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
   border-radius: var(--radius-full);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -14,7 +14,7 @@
 
 .sm {
   font-size: 0.6rem;
-  padding: 0.1rem 0.4rem;
+  padding: 0.15rem 0.45rem;
 }
 
 .low {
@@ -33,10 +33,23 @@
   background: var(--priority-high-bg);
   color: var(--priority-high-text);
   border-color: var(--priority-high-border);
+  box-shadow: 0 0 6px rgba(251, 146, 60, 0.15);
 }
 
 .urgent {
   background: var(--priority-urgent-bg);
   color: var(--priority-urgent-text);
   border-color: var(--priority-urgent-border);
+  animation: urgent-pulse 2s ease-in-out infinite;
+}
+
+@keyframes urgent-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(248, 113, 113, 0.2);
+    opacity: 0.85;
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(248, 113, 113, 0.4);
+    opacity: 1;
+  }
 }

@@ -1,18 +1,41 @@
 import { create } from 'zustand';
 import { CURRENT_USER_KEY } from '@/lib/constants';
 
+const isMock =
+  typeof window !== 'undefined' &&
+  (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL.includes('SEU-PROJETO'));
+
 const useUserStore = create((set, get) => ({
   currentUser: null,
   allUsers: [],
   isLoaded: false,
 
-  // Load current user from localStorage
-  loadCurrentUser: () => {
+  // Inicializar usuario — auth mode ou mock mode
+  initialize: async () => {
     if (typeof window === 'undefined') return;
+
+    if (isMock) {
+      // Mock mode: carregar do localStorage
+      try {
+        const saved = localStorage.getItem(CURRENT_USER_KEY);
+        if (saved) {
+          set({ currentUser: JSON.parse(saved), isLoaded: true });
+        } else {
+          set({ isLoaded: true });
+        }
+      } catch {
+        set({ isLoaded: true });
+      }
+      return;
+    }
+
+    // Auth mode: buscar perfil do usuario autenticado
     try {
-      const saved = localStorage.getItem(CURRENT_USER_KEY);
-      if (saved) {
-        set({ currentUser: JSON.parse(saved), isLoaded: true });
+      const res = await fetch('/api/users/me');
+      if (res.ok) {
+        const { user } = await res.json();
+        set({ currentUser: user, isLoaded: true });
       } else {
         set({ isLoaded: true });
       }
@@ -21,12 +44,38 @@ const useUserStore = create((set, get) => ({
     }
   },
 
-  // Set and persist current user
+  // Manter para compatibilidade com mock mode
+  loadCurrentUser: () => {
+    get().initialize();
+  },
+
+  // Set and persist current user (mock mode)
   setCurrentUser: (user) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isMock) {
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
     }
     set({ currentUser: user });
+  },
+
+  // Sign out
+  signOut: async () => {
+    if (isMock) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(CURRENT_USER_KEY);
+      }
+      set({ currentUser: null });
+      return;
+    }
+
+    try {
+      const { getSupabaseClient } = await import('@/lib/supabase/client');
+      const supabase = getSupabaseClient();
+      await supabase.auth.signOut();
+      set({ currentUser: null });
+      window.location.href = '/login';
+    } catch {
+      window.location.href = '/login';
+    }
   },
 
   // Fetch all users from API
@@ -61,7 +110,7 @@ const useUserStore = create((set, get) => ({
       const current = get().currentUser;
       if (current && current.id === userId) {
         const updated = { ...current, ...user };
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && isMock) {
           localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updated));
         }
         set({ currentUser: updated });

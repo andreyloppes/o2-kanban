@@ -4,7 +4,7 @@ import { createTaskSchema } from '@/lib/validators';
 import { DEFAULT_BOARD_ID, POSITION_GAP } from '@/lib/constants';
 
 export async function GET(request) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { searchParams } = new URL(request.url);
   const boardId = searchParams.get('board_id') || DEFAULT_BOARD_ID;
 
@@ -22,7 +22,7 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const body = await request.json();
 
   // Validar com Zod

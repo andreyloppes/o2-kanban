@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings, KanbanSquare, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, Settings, KanbanSquare, ChevronLeft, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import useUIStore from "@/stores/useUIStore";
+import useUserStore from "@/stores/useUserStore";
 
 export default function Sidebar() {
     const sidebarCollapsed = useUIStore((state) => state.sidebarCollapsed);
@@ -13,6 +14,10 @@ export default function Sidebar() {
 
     const isBoards = pathname === "/" || pathname.startsWith("/board");
     const isSettings = pathname === "/settings";
+
+    const handleSignOut = () => {
+        useUserStore.getState().signOut();
+    };
 
     return (
         <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`} aria-label="Menu lateral">
@@ -67,6 +72,17 @@ export default function Sidebar() {
                     <span>Configuracoes</span>
                 </Link>
             </nav>
+
+            <div className="sidebar-footer">
+                <button
+                    className="nav-item"
+                    onClick={handleSignOut}
+                    title={sidebarCollapsed ? "Sair" : undefined}
+                >
+                    <LogOut size={18} />
+                    <span>Sair</span>
+                </button>
+            </div>
         </aside>
     );
 }

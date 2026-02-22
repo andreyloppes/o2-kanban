@@ -4,7 +4,7 @@ import { createCommentSchema } from '@/lib/validators';
 
 export async function GET(request, { params }) {
   const { taskId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const { data: task, error: taskError } = await supabase
     .from('tasks')
@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   const { taskId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const body = await request.json();
 
   const parsed = createCommentSchema.safeParse(body);

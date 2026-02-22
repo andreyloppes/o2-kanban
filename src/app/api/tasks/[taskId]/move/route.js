@@ -4,7 +4,7 @@ import { moveTaskSchema } from '@/lib/validators';
 
 export async function PATCH(request, { params }) {
   const { taskId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const body = await request.json();
 
   // Validar com Zod

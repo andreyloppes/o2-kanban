@@ -4,7 +4,7 @@ import { updateTaskSchema } from '@/lib/validators';
 
 export async function GET(request, { params }) {
   const { taskId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const { data: task, error } = await supabase
     .from('tasks')
@@ -24,7 +24,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   const { taskId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const body = await request.json();
 
   // Validar com Zod
@@ -55,7 +55,7 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   const { taskId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const { data, error } = await supabase
     .from('tasks')

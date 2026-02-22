@@ -8,6 +8,11 @@ import Avatar from '@/components/ui/Avatar';
 import { staggerContainer, staggerItem, cardHover } from '@/lib/motion';
 import styles from './Settings.module.css';
 
+const isMock =
+  typeof window !== 'undefined' &&
+  (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL.includes('SEU-PROJETO'));
+
 export default function SettingsPage() {
   const currentUser = useUserStore((state) => state.currentUser);
   const isLoaded = useUserStore((state) => state.isLoaded);
@@ -32,7 +37,9 @@ export default function SettingsPage() {
     );
   }
 
-  if (!currentUser) {
+  // Em auth mode: mostrar settings form direto (usuario ja autenticado)
+  // Em mock mode sem currentUser: mostrar user picker
+  if (!currentUser && isMock) {
     return (
       <div className="page-container">
         <div className="page-content">
@@ -80,6 +87,19 @@ export default function SettingsPage() {
               </motion.div>
             )}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="page-container">
+        <div className="page-content">
+          <div className="page-header">
+            <h1 className="page-title">Configuracoes</h1>
+          </div>
+          <p style={{ color: 'var(--text-muted)' }}>Carregando perfil...</p>
         </div>
       </div>
     );

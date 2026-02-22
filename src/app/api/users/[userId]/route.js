@@ -4,7 +4,7 @@ import { updateUserSchema } from '@/lib/validators';
 
 export async function PATCH(request, { params }) {
   const { userId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const body = await request.json();
 
   const parsed = updateUserSchema.safeParse(body);

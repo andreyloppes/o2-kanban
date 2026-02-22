@@ -9,7 +9,7 @@ import '../kanban.css';
 
 export default function AppLayout({ children }) {
   useEffect(() => {
-    useUserStore.getState().loadCurrentUser();
+    useUserStore.getState().initialize();
     useUserStore.getState().fetchUsers();
   }, []);
 

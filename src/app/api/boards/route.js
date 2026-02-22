@@ -4,7 +4,7 @@ import { createBoardSchema } from '@/lib/validators';
 import { POSITION_GAP, DEFAULT_COLUMNS } from '@/lib/constants';
 
 export async function GET() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const { data: boards, error } = await supabase
     .from('boards')
@@ -40,7 +40,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const body = await request.json();
 
   const parsed = createBoardSchema.safeParse(body);

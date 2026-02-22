@@ -4,7 +4,7 @@ import { updateBoardSchema } from '@/lib/validators';
 
 export async function GET(request, { params }) {
   const { boardId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // Buscar board
   const { data: board, error: boardError } = await supabase
@@ -60,7 +60,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   const { boardId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   let body;
   try {
@@ -101,7 +101,7 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   const { boardId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // Verificar se board existe
   const { data: board, error: boardError } = await supabase

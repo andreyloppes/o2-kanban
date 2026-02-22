@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server';
 
 export async function GET(request, { params }) {
   const { boardId } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // Buscar board_members
   const { data: boardMembers, error } = await supabase

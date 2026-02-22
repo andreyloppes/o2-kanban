@@ -39,6 +39,25 @@ export async function POST(request) {
 
   const resolvedBoardId = board_id || DEFAULT_BOARD_ID;
 
+  // Verificar permissao
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { data: membership } = await supabase
+      .from('board_members')
+      .select('id')
+      .eq('board_id', resolvedBoardId)
+      .eq('user_id', user.id)
+      .limit(1);
+    if (!membership || membership.length === 0) {
+      return NextResponse.json(
+        { error: 'Sem permissao para criar tarefas neste board' },
+        { status: 403 }
+      );
+    }
+  }
+
   // Calcular posicao (ultima da coluna + GAP)
   const { data: lastTask } = await supabase
     .from('tasks')

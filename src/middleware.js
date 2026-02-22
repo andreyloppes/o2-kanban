@@ -34,14 +34,15 @@ export async function middleware(request) {
     }
   );
 
+  // Refresh de sessao — DEVE rodar para todas as rotas (incluindo /api/)
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
-  // Bypass para auth callback (OAuth precisa processar antes de ter sessao)
-  if (pathname.startsWith('/auth/callback')) {
+  // API routes e auth callback — refresh cookies mas sem redirect
+  if (pathname.startsWith('/api/') || pathname.startsWith('/auth/callback')) {
     return supabaseResponse;
   }
 
@@ -64,6 +65,6 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api/).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

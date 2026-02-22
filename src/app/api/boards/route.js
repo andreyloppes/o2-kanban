@@ -6,52 +6,33 @@ import { POSITION_GAP, DEFAULT_COLUMNS } from '@/lib/constants';
 export async function GET() {
   const supabase = await createServerClient();
 
-  // Verificar usuario autenticado
+  // Buscar TODOS os boards (visibilidade global)
+  const { data: boards, error } = await supabase
+    .from('boards')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Verificar usuario autenticado para marcar permissao
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let boards;
-
+  let userBoardIds = new Set();
   if (user) {
-    // Auth mode: buscar apenas boards do usuario
     const { data: memberships } = await supabase
       .from('board_members')
       .select('board_id')
       .eq('user_id', user.id);
-
-    const boardIds = (memberships || []).map((m) => m.board_id);
-
-    if (boardIds.length === 0) {
-      return NextResponse.json({ boards: [] });
-    }
-
-    const { data, error } = await supabase
-      .from('boards')
-      .select('*')
-      .in('id', boardIds)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    boards = data || [];
-  } else {
-    // Mock mode: buscar todos os boards
-    const { data, error } = await supabase
-      .from('boards')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    boards = data || [];
+    userBoardIds = new Set((memberships || []).map((m) => m.board_id));
   }
 
-  // Enrich with member_count and task_count
+  // Enrich with member_count, task_count e can_edit
   const enriched = await Promise.all(
-    boards.map(async (board) => {
+    (boards || []).map(async (board) => {
       const { data: members } = await supabase
         .from('board_members')
         .select('id')
@@ -66,6 +47,7 @@ export async function GET() {
         ...board,
         member_count: members?.length || 0,
         task_count: tasks?.length || 0,
+        can_edit: userBoardIds.has(board.id),
       };
     })
   );
@@ -121,5 +103,5 @@ export async function POST(request) {
     });
   }
 
-  return NextResponse.json({ board }, { status: 201 });
+  return NextResponse.json({ board: { ...board, can_edit: true } }, { status: 201 });
 }

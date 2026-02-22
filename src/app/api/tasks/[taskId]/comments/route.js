@@ -35,15 +35,6 @@ export async function GET(request, { params }) {
 export async function POST(request, { params }) {
   const { taskId } = await params;
   const supabase = await createServerClient();
-  const body = await request.json();
-
-  const parsed = createCommentSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0].message },
-      { status: 400 }
-    );
-  }
 
   const { data: task, error: taskError } = await supabase
     .from('tasks')
@@ -55,6 +46,34 @@ export async function POST(request, { params }) {
     return NextResponse.json(
       { error: 'Tarefa nao encontrada' },
       { status: 404 }
+    );
+  }
+
+  // Verificar permissao
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { data: membership } = await supabase
+      .from('board_members')
+      .select('id')
+      .eq('board_id', task.board_id)
+      .eq('user_id', user.id)
+      .limit(1);
+    if (!membership || membership.length === 0) {
+      return NextResponse.json(
+        { error: 'Sem permissao para comentar neste board' },
+        { status: 403 }
+      );
+    }
+  }
+
+  const body = await request.json();
+  const parsed = createCommentSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0].message },
+      { status: 400 }
     );
   }
 

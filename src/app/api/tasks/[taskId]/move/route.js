@@ -5,6 +5,36 @@ import { moveTaskSchema } from '@/lib/validators';
 export async function PATCH(request, { params }) {
   const { taskId } = await params;
   const supabase = await createServerClient();
+
+  // Verificar permissao
+  const { data: task } = await supabase
+    .from('tasks')
+    .select('board_id')
+    .eq('id', taskId)
+    .single();
+
+  if (!task) {
+    return NextResponse.json({ error: 'Tarefa nao encontrada' }, { status: 404 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { data: membership } = await supabase
+      .from('board_members')
+      .select('id')
+      .eq('board_id', task.board_id)
+      .eq('user_id', user.id)
+      .limit(1);
+    if (!membership || membership.length === 0) {
+      return NextResponse.json(
+        { error: 'Sem permissao para mover tarefas neste board' },
+        { status: 403 }
+      );
+    }
+  }
+
   const body = await request.json();
 
   // Validar com Zod
@@ -23,7 +53,7 @@ export async function PATCH(request, { params }) {
     updateData.column_entered_at = column_entered_at;
   }
 
-  const { data: task, error } = await supabase
+  const { data: updated, error } = await supabase
     .from('tasks')
     .update(updateData)
     .eq('id', taskId)
@@ -34,5 +64,5 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ task });
+  return NextResponse.json({ task: updated });
 }

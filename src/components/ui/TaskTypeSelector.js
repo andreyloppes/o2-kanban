@@ -11,7 +11,7 @@ const TYPE_OPTIONS = [
   { value: "spike", label: "Spike", icon: Circle },
 ];
 
-export default function TaskTypeSelector({ value, onChange }) {
+export default function TaskTypeSelector({ value, onChange, disabled }) {
   return (
     <div className={styles.typeSelector} role="radiogroup" aria-label="Tipo da tarefa">
       {TYPE_OPTIONS.map((opt) => {
@@ -24,7 +24,8 @@ export default function TaskTypeSelector({ value, onChange }) {
             role="radio"
             aria-checked={isSelected}
             className={`${styles.typeOption} ${isSelected ? styles.selected : ""}`}
-            onClick={() => onChange(opt.value)}
+            onClick={() => !disabled && onChange(opt.value)}
+            disabled={disabled}
           >
             <Icon size={14} />
             {opt.label}

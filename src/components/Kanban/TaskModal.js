@@ -46,6 +46,7 @@ export default function TaskModal() {
   );
   const columns = useBoardStore((state) => state.columns);
   const members = useBoardStore((state) => state.members);
+  const canEdit = useBoardStore((state) => state.board?.can_edit);
 
   // Editable state
   const [editTitle, setEditTitle] = useState("");
@@ -224,16 +225,17 @@ export default function TaskModal() {
               placeholder="Titulo da tarefa..."
               error={!!errors.title}
               maxLength={500}
+              disabled={!canEdit}
             />
           </FormField>
 
           <div className={styles.formGrid}>
             <FormField label="Tipo">
-              <TaskTypeSelector value={editType} onChange={setEditType} />
+              <TaskTypeSelector value={editType} onChange={setEditType} disabled={!canEdit} />
             </FormField>
 
             <FormField label="Prioridade">
-              <PrioritySelector value={editPriority} onChange={setEditPriority} />
+              <PrioritySelector value={editPriority} onChange={setEditPriority} disabled={!canEdit} />
             </FormField>
           </div>
 
@@ -246,6 +248,7 @@ export default function TaskModal() {
               placeholder="Adicione uma descricao..."
               maxLength={5000}
               rows={4}
+              disabled={!canEdit}
             />
           </FormField>
 
@@ -257,6 +260,7 @@ export default function TaskModal() {
                 onChange={(e) => setEditAssignee(e.target.value)}
                 options={memberOptions}
                 placeholder="Sem responsavel"
+                disabled={!canEdit}
               />
             </FormField>
 
@@ -266,11 +270,12 @@ export default function TaskModal() {
                 value={editDueDate}
                 onChange={(e) => setEditDueDate(e.target.value)}
                 placeholder="Sem data"
+                disabled={!canEdit}
               />
             </FormField>
           </div>
 
-          <TaskTimerControls taskId={task.id} />
+          {canEdit && <TaskTimerControls taskId={task.id} />}
 
           <div className={styles.metaSection}>
             <div className={styles.metaRow}>
@@ -302,32 +307,46 @@ export default function TaskModal() {
         </div>
 
         <div className={styles.footer}>
-          <div className={styles.footerLeft}>
-            <IconButton
-              icon={<Trash2 size={18} />}
-              variant="danger"
-              onClick={handleDelete}
-              ariaLabel="Excluir tarefa"
-              title="Excluir tarefa"
-            />
-          </div>
-          <div className={styles.footerRight}>
-            <button
-              type="button"
-              className={styles.btnGhost}
-              onClick={handleClose}
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              className={styles.btnPrimary}
-              disabled={!isDirty || isSaving}
-              onClick={handleSave}
-            >
-              {isSaving ? "Salvando..." : "Salvar alteracoes"}
-            </button>
-          </div>
+          {canEdit ? (
+            <>
+              <div className={styles.footerLeft}>
+                <IconButton
+                  icon={<Trash2 size={18} />}
+                  variant="danger"
+                  onClick={handleDelete}
+                  ariaLabel="Excluir tarefa"
+                  title="Excluir tarefa"
+                />
+              </div>
+              <div className={styles.footerRight}>
+                <button
+                  type="button"
+                  className={styles.btnGhost}
+                  onClick={handleClose}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className={styles.btnPrimary}
+                  disabled={!isDirty || isSaving}
+                  onClick={handleSave}
+                >
+                  {isSaving ? "Salvando..." : "Salvar alteracoes"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className={styles.footerRight}>
+              <button
+                type="button"
+                className={styles.btnGhost}
+                onClick={handleClose}
+              >
+                Fechar
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
     </motion.div>

@@ -9,7 +9,7 @@ const PRIORITY_OPTIONS = [
   { value: "urgent", label: "Urgente", color: "var(--color-danger)", selectedClass: styles.selectedUrgent },
 ];
 
-export default function PrioritySelector({ value, onChange }) {
+export default function PrioritySelector({ value, onChange, disabled }) {
   return (
     <div className={styles.prioritySelector} role="radiogroup" aria-label="Prioridade da tarefa">
       {PRIORITY_OPTIONS.map((opt) => {
@@ -21,7 +21,8 @@ export default function PrioritySelector({ value, onChange }) {
             role="radio"
             aria-checked={isSelected}
             className={`${styles.priorityOption} ${isSelected ? opt.selectedClass : ""}`}
-            onClick={() => onChange(opt.value)}
+            onClick={() => !disabled && onChange(opt.value)}
+            disabled={disabled}
           >
             <span
               className={styles.priorityDot}

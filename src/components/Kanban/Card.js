@@ -7,6 +7,7 @@ import DueDateBadge from "@/components/ui/DueDateBadge";
 import TaskTimerBadge from "@/components/ui/TaskTimerBadge";
 import ColumnAgeBadge from "@/components/ui/ColumnAgeBadge";
 import useUIStore from "@/stores/useUIStore";
+import useBoardStore from "@/stores/useBoardStore";
 
 const getTypeIcon = (type) => {
   switch (type) {
@@ -26,6 +27,7 @@ const getTypeIcon = (type) => {
 };
 
 export default function Card({ task }) {
+  const canEdit = useBoardStore((state) => state.board?.can_edit);
   const {
     attributes,
     listeners,
@@ -33,14 +35,14 @@ export default function Card({ task }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id, data: { type: "Card", task } });
+  } = useSortable({ id: task.id, data: { type: "Card", task }, disabled: !canEdit });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 999 : 1,
-    cursor: isDragging ? "grabbing" : "pointer",
+    cursor: isDragging ? "grabbing" : canEdit ? "pointer" : "default",
   };
 
   const typeLabel = TASK_TYPES[task.type] || task.type;

@@ -13,6 +13,7 @@ import TaskTypeSelector from "@/components/ui/TaskTypeSelector";
 import PrioritySelector from "@/components/ui/PrioritySelector";
 import IconButton from "@/components/ui/IconButton";
 import DateInput from "@/components/ui/DateInput";
+import DurationInput from "@/components/ui/DurationInput";
 import { motion } from "framer-motion";
 import { modalOverlay, modalContent } from "@/lib/motion";
 import TaskTimerControls from "@/components/ui/TaskTimerControls";
@@ -55,6 +56,8 @@ export default function TaskModal() {
   const [editDescription, setEditDescription] = useState("");
   const [editAssignee, setEditAssignee] = useState("");
   const [editDueDate, setEditDueDate] = useState("");
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEstimatedMin, setEditEstimatedMin] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
@@ -67,6 +70,8 @@ export default function TaskModal() {
       setEditDescription(task.description || "");
       setEditAssignee(task.assignee || "");
       setEditDueDate(task.due_date || "");
+      setEditStartDate(task.start_date || "");
+      setEditEstimatedMin(task.estimated_duration_min ?? null);
       setErrors({});
       setIsSaving(false);
     }
@@ -81,9 +86,11 @@ export default function TaskModal() {
       editPriority !== (task.priority || "medium") ||
       editDescription !== (task.description || "") ||
       editAssignee !== (task.assignee || "") ||
-      editDueDate !== (task.due_date || "")
+      editDueDate !== (task.due_date || "") ||
+      editStartDate !== (task.start_date || "") ||
+      editEstimatedMin !== (task.estimated_duration_min ?? null)
     );
-  }, [task, editTitle, editType, editPriority, editDescription, editAssignee, editDueDate]);
+  }, [task, editTitle, editType, editPriority, editDescription, editAssignee, editDueDate, editStartDate, editEstimatedMin]);
 
   const handleClose = useCallback(() => {
     if (isDirty) {
@@ -132,6 +139,10 @@ export default function TaskModal() {
       updates.assignee = editAssignee || null;
     if (editDueDate !== (task.due_date || ""))
       updates.due_date = editDueDate || null;
+    if (editStartDate !== (task.start_date || ""))
+      updates.start_date = editStartDate || null;
+    if (editEstimatedMin !== (task.estimated_duration_min ?? null))
+      updates.estimated_duration_min = editEstimatedMin;
 
     const result = updateTaskSchema.safeParse(updates);
     if (!result.success) {
@@ -264,12 +275,35 @@ export default function TaskModal() {
               />
             </FormField>
 
-            <FormField label="Data limite" htmlFor="modal-due-date">
+            <FormField label="Esforco previsto">
+              <DurationInput
+                value={editEstimatedMin}
+                onChange={setEditEstimatedMin}
+                disabled={!canEdit}
+                placeholder="Sem estimativa"
+              />
+            </FormField>
+          </div>
+
+          <div className={styles.formGrid}>
+            <FormField label="Iniciar em" htmlFor="modal-start-date">
+              <DateInput
+                id="modal-start-date"
+                value={editStartDate}
+                onChange={(e) => setEditStartDate(e.target.value)}
+                placeholder="Sem data"
+                max={editDueDate || undefined}
+                disabled={!canEdit}
+              />
+            </FormField>
+
+            <FormField label="Concluir ate" htmlFor="modal-due-date">
               <DateInput
                 id="modal-due-date"
                 value={editDueDate}
                 onChange={(e) => setEditDueDate(e.target.value)}
                 placeholder="Sem data"
+                min={editStartDate || undefined}
                 disabled={!canEdit}
               />
             </FormField>

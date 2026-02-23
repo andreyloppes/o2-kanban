@@ -1,15 +1,17 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { staggerContainer } from '@/lib/motion';
 import useBoardStore from '@/stores/useBoardStore';
 import useUIStore from '@/stores/useUIStore';
 import FilterBar from './FilterBar';
 import PomodoroWidget from './PomodoroWidget';
+import JoinRequestButton from '@/components/Members/JoinRequestButton';
 
 export default function Board({ title, children }) {
   const router = useRouter();
+  const board = useBoardStore((state) => state.board);
   const members = useBoardStore((state) => state.members);
   const currentAssignee = useUIStore((state) => state.filters.assignee);
 
@@ -53,6 +55,18 @@ export default function Board({ title, children }) {
               </div>
             )}
           </div>
+          {board?.can_edit ? (
+            <button
+              className="members-btn"
+              onClick={() => router.push(`/board/${board.id}/members`)}
+              title="Gerenciar membros"
+            >
+              <Users size={16} />
+              <span>Membros</span>
+            </button>
+          ) : (
+            <JoinRequestButton />
+          )}
         </div>
       </header>
 

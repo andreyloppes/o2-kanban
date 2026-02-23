@@ -9,6 +9,8 @@ export const createTaskSchema = z.object({
   description: z.string().max(5000).nullable().optional(),
   assignee: z.string().max(100).nullable().optional(),
   due_date: z.string().nullable().optional(),
+  start_date: z.string().nullable().optional(),
+  estimated_duration_min: z.number().int().min(0).max(99999).nullable().optional(),
 });
 
 export const updateTaskSchema = z.object({
@@ -18,15 +20,26 @@ export const updateTaskSchema = z.object({
   description: z.string().max(5000).nullable().optional(),
   assignee: z.string().max(100).nullable().optional(),
   due_date: z.string().nullable().optional(),
-  timer_elapsed_ms: z.number().min(0).optional(),
-  timer_running: z.boolean().optional(),
-  timer_started_at: z.string().nullable().optional(),
+  start_date: z.string().nullable().optional(),
+  estimated_duration_min: z.number().int().min(0).max(99999).nullable().optional(),
 });
 
 export const moveTaskSchema = z.object({
   column_id: z.string().uuid(),
   position: z.number().positive(),
-  column_entered_at: z.string().optional(),
+});
+
+// --- Colunas ---
+
+export const createColumnSchema = z.object({
+  title: z.string().min(1, 'Titulo e obrigatorio').max(200),
+  color: z.string().max(50).optional().default('neutral'),
+});
+
+export const updateColumnSchema = z.object({
+  title: z.string().min(1, 'Titulo e obrigatorio').max(200).optional(),
+  color: z.string().max(50).optional(),
+  position: z.number().positive().optional(),
 });
 
 // --- Sprint 2: Comentarios ---

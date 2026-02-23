@@ -73,6 +73,130 @@ const useBoardStore = create((set, get) => ({
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error, isLoading: false }),
 
+  // === Actions: Column CRUD ===
+
+  addColumn: async (title, color = 'neutral') => {
+    const boardId = get().board?.id;
+    if (!boardId) return null;
+
+    const tempId = `temp-col-${Date.now()}`;
+    const cols = get().columns;
+    const maxPos = cols.length > 0 ? Math.max(...cols.map((c) => c.position)) : 0;
+    const position = maxPos + POSITION_GAP;
+
+    const optimisticCol = {
+      id: tempId,
+      board_id: boardId,
+      title,
+      color,
+      position,
+      wip_limit: null,
+      is_done_column: false,
+      created_at: new Date().toISOString(),
+    };
+
+    set((state) => ({ columns: [...state.columns, optimisticCol] }));
+
+    try {
+      const res = await fetch(`/api/boards/${boardId}/columns`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, color }),
+      });
+
+      if (!res.ok) throw new Error('Falha ao criar coluna');
+
+      const { column: savedCol } = await res.json();
+      set((state) => ({
+        columns: state.columns.map((c) => (c.id === tempId ? savedCol : c)),
+      }));
+      return savedCol;
+    } catch (error) {
+      set((state) => ({
+        columns: state.columns.filter((c) => c.id !== tempId),
+        error: error.message,
+      }));
+      useUIStore.getState().addToast('Erro ao criar coluna', 'error');
+      return null;
+    }
+  },
+
+  updateColumn: async (columnId, updates) => {
+    const boardId = get().board?.id;
+    if (!boardId) return false;
+
+    const previousCol = get().columns.find((c) => c.id === columnId);
+    if (!previousCol) return false;
+
+    set((state) => ({
+      columns: state.columns.map((c) =>
+        c.id === columnId ? { ...c, ...updates } : c
+      ),
+    }));
+
+    try {
+      const res = await fetch(`/api/boards/${boardId}/columns/${columnId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+
+      if (!res.ok) throw new Error('Falha ao atualizar coluna');
+
+      const { column: savedCol } = await res.json();
+      set((state) => ({
+        columns: state.columns.map((c) => (c.id === columnId ? savedCol : c)),
+      }));
+      return true;
+    } catch (error) {
+      set((state) => ({
+        columns: state.columns.map((c) => (c.id === columnId ? previousCol : c)),
+        error: error.message,
+      }));
+      useUIStore.getState().addToast('Erro ao atualizar coluna', 'error');
+      return false;
+    }
+  },
+
+  deleteColumn: async (columnId) => {
+    const boardId = get().board?.id;
+    if (!boardId) return false;
+
+    const previousCol = get().columns.find((c) => c.id === columnId);
+    if (!previousCol) return false;
+
+    // Verificar se tem tasks
+    const tasksInCol = get().tasks.filter((t) => t.column_id === columnId);
+    if (tasksInCol.length > 0) {
+      useUIStore.getState().addToast('Mova ou delete as tarefas antes de remover a coluna', 'error');
+      return false;
+    }
+
+    set((state) => ({
+      columns: state.columns.filter((c) => c.id !== columnId),
+    }));
+
+    try {
+      const res = await fetch(`/api/boards/${boardId}/columns/${columnId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Falha ao deletar coluna');
+      }
+
+      return true;
+    } catch (error) {
+      set((state) => ({
+        columns: [...state.columns, previousCol].sort((a, b) => a.position - b.position),
+        error: error.message,
+      }));
+      useUIStore.getState().addToast(error.message, 'error');
+      return false;
+    }
+  },
+
   // === Actions: Task CRUD ===
 
   /**
@@ -93,6 +217,8 @@ const useBoardStore = create((set, get) => ({
       assignee: null,
       description: null,
       due_date: null,
+      start_date: null,
+      estimated_duration_min: null,
       column_entered_at: new Date().toISOString(),
       timer_elapsed_ms: 0,
       timer_running: false,
@@ -118,6 +244,8 @@ const useBoardStore = create((set, get) => ({
           description: taskData.description || null,
           assignee: taskData.assignee || null,
           due_date: taskData.due_date || null,
+          start_date: taskData.start_date || null,
+          estimated_duration_min: taskData.estimated_duration_min ?? null,
         }),
       });
 

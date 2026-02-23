@@ -67,8 +67,26 @@ export async function GET(request, { params }) {
   // Verificar se usuario atual e membro
   const canEdit = await checkMembership(supabase, boardId);
 
+  // Se nao e membro, verificar se tem solicitacao pendente
+  let joinRequestStatus = null;
+  if (!canEdit) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data: joinRequest } = await supabase
+        .from('join_requests')
+        .select('status')
+        .eq('board_id', boardId)
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .single();
+      joinRequestStatus = joinRequest?.status || null;
+    }
+  }
+
   return NextResponse.json({
-    board: { ...board, can_edit: canEdit },
+    board: { ...board, can_edit: canEdit, join_request_status: joinRequestStatus },
     columns: columns || [],
     tasks: tasks || [],
     members,

@@ -1,18 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, UserPlus } from 'lucide-react';
 import MemberList from '@/components/Members/MemberList';
+import InviteForm from '@/components/Members/InviteForm';
+import JoinRequestList from '@/components/Members/JoinRequestList';
 import PageTransition from '@/components/ui/PageTransition';
 
 export default function BoardMembersPage() {
   const { boardId } = useParams();
   const [members, setMembers] = useState([]);
+  const [currentRole, setCurrentRole] = useState(null);
   const [boardTitle, setBoardTitle] = useState('');
+  const [joinRequests, setJoinRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const fetchMembers = useCallback(async () => {
+    if (!boardId) return;
+    try {
+      const res = await fetch(`/api/boards/${boardId}/members`);
+      if (!res.ok) throw new Error('Falha ao carregar membros');
+      const data = await res.json();
+      setMembers(data.members || []);
+      setCurrentRole(data.currentRole || null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [boardId]);
 
   useEffect(() => {
     if (!boardId) return;
@@ -30,10 +47,20 @@ export default function BoardMembersPage() {
         if (!membersRes.ok) throw new Error('Falha ao carregar membros');
         const membersData = await membersRes.json();
         setMembers(membersData.members || []);
+        setCurrentRole(membersData.currentRole || null);
 
         if (boardRes.ok) {
           const boardData = await boardRes.json();
           setBoardTitle(boardData.board?.title || '');
+        }
+
+        // Buscar solicitacoes pendentes se owner
+        if (membersData.currentRole === 'owner') {
+          const reqRes = await fetch(`/api/boards/${boardId}/join-requests`);
+          if (reqRes.ok) {
+            const reqData = await reqRes.json();
+            setJoinRequests(reqData.requests || []);
+          }
         }
       } catch (err) {
         setError(err.message);
@@ -44,6 +71,29 @@ export default function BoardMembersPage() {
 
     fetchData();
   }, [boardId]);
+
+  const handleMemberAdded = (newMember) => {
+    setMembers((prev) => [...prev, newMember]);
+  };
+
+  const handleRoleChanged = (memberId, newRole) => {
+    setMembers((prev) =>
+      prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m))
+    );
+  };
+
+  const handleMemberRemoved = (memberId) => {
+    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+  };
+
+  const handleRequestHandled = (requestId, action) => {
+    setJoinRequests((prev) => prev.filter((r) => r.id !== requestId));
+    if (action === 'approve') {
+      fetchMembers();
+    }
+  };
+
+  const isOwner = currentRole === 'owner';
 
   return (
     <div className="page-container">
@@ -72,6 +122,18 @@ export default function BoardMembersPage() {
           </div>
         </div>
 
+        {isOwner && (
+          <InviteForm boardId={boardId} onMemberAdded={handleMemberAdded} />
+        )}
+
+        {isOwner && joinRequests.length > 0 && (
+          <JoinRequestList
+            requests={joinRequests}
+            boardId={boardId}
+            onRequestHandled={handleRequestHandled}
+          />
+        )}
+
         {isLoading && (
           <p style={{ color: 'var(--text-muted)' }}>Carregando...</p>
         )}
@@ -90,7 +152,13 @@ export default function BoardMembersPage() {
 
         {!isLoading && !error && members.length > 0 && (
           <PageTransition>
-            <MemberList members={members} />
+            <MemberList
+              members={members}
+              isOwner={isOwner}
+              boardId={boardId}
+              onRoleChanged={handleRoleChanged}
+              onMemberRemoved={handleMemberRemoved}
+            />
           </PageTransition>
         )}
       </div>

@@ -48,7 +48,7 @@ export const CURRENT_USER_KEY = 'o2kanban_current_user';
 
 // Roles de board
 export const BOARD_ROLES = {
-  owner: 'Proprietario',
+  owner: 'Admin',
   member: 'Membro',
 };
 
@@ -72,6 +72,13 @@ export const AVATAR_COLORS = [
   '#06b6d4',
   '#f97316',
 ];
+
+// Status de solicitacao de acesso
+export const JOIN_REQUEST_STATUS = {
+  pending: 'Pendente',
+  approved: 'Aprovado',
+  rejected: 'Rejeitado',
+};
 
 // --- Pomodoro ---
 export const POMODORO_DEFAULTS = {

@@ -34,7 +34,7 @@ export async function POST(request) {
     );
   }
 
-  const { column_id, board_id, title, type, priority, description, assignee, due_date } =
+  const { column_id, board_id, title, type, priority, description, assignee, due_date, start_date, estimated_duration_min } =
     parsed.data;
 
   const resolvedBoardId = board_id || DEFAULT_BOARD_ID;
@@ -81,11 +81,9 @@ export async function POST(request) {
       description: description || null,
       assignee: assignee || null,
       due_date: due_date || null,
+      start_date: start_date || null,
+      estimated_duration_min: estimated_duration_min ?? null,
       position,
-      column_entered_at: new Date().toISOString(),
-      timer_elapsed_ms: 0,
-      timer_running: false,
-      timer_started_at: null,
     })
     .select()
     .single();

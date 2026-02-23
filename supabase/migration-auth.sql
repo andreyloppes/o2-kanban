@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   slug TEXT UNIQUE,
   name TEXT NOT NULL DEFAULT '',
   email TEXT,
+  avatar_url TEXT,
   avatar_color TEXT DEFAULT '#3b82f6',
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -37,11 +38,17 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.users (id, name, email, avatar_color)
+  INSERT INTO public.users (id, name, email, avatar_url, avatar_color)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data ->> 'name', ''),
+    COALESCE(
+      NEW.raw_user_meta_data ->> 'full_name',
+      NEW.raw_user_meta_data ->> 'name',
+      NEW.raw_user_meta_data ->> 'user_name',
+      ''
+    ),
     COALESCE(NEW.email, ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'avatar_url', NULL),
     '#3b82f6'
   );
   RETURN NEW;

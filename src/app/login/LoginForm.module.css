@@ -200,8 +200,27 @@
   transition: all var(--transition-fast);
 }
 
-.oauthBtn:hover {
+.oauthBtn:hover:not(:disabled) {
   background: var(--bg-elevated);
   border-color: var(--border-hover);
   color: var(--text-primary);
+}
+
+.oauthBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

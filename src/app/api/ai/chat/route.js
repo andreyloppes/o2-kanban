@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { buildSystemPrompt } from '@/lib/ai/systemPrompt';
 
-const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 async function getUserBoardRole(supabase, boardId) {
   const {
@@ -209,33 +209,46 @@ export async function POST(request) {
     userRole,
   });
 
-  // Montar mensagens (ultimas 10 do historico + nova)
-  const messages = [
-    ...history.slice(-10).map((h) => ({ role: h.role, content: h.content })),
-    { role: 'user', content: message },
-  ];
+  // Montar historico no formato Gemini (contents com parts)
+  const contents = [];
+
+  // Historico (ultimas 10 mensagens)
+  for (const h of history.slice(-10)) {
+    contents.push({
+      role: h.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: h.content }],
+    });
+  }
+
+  // Nova mensagem do usuario
+  contents.push({
+    role: 'user',
+    parts: [{ text: message }],
+  });
 
   // Verificar API key
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
   let assistantMessage;
   let actions = [];
 
   if (!apiKey) {
-    assistantMessage = 'Agente de IA nao configurado. Adicione ANTHROPIC_API_KEY nas variaveis de ambiente.';
+    assistantMessage = 'Agente de IA nao configurado. Adicione GOOGLE_AI_API_KEY nas variaveis de ambiente.';
   } else {
     try {
-      const response = await fetch(ANTHROPIC_API_URL, {
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
         method: 'POST',
         headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1024,
-          system: systemPrompt,
-          messages,
+          system_instruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          contents,
+          generationConfig: {
+            maxOutputTokens: 1024,
+            temperature: 0.7,
+          },
         }),
       });
 
@@ -245,7 +258,8 @@ export async function POST(request) {
       }
 
       const data = await response.json();
-      assistantMessage = data.content?.[0]?.text || 'Sem resposta do modelo.';
+      assistantMessage =
+        data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sem resposta do modelo.';
 
       // Parsear e executar acoes (somente para owners)
       if (userRole === 'owner') {

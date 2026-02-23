@@ -57,36 +57,38 @@ export default function BoardCard({ board, onEdit, onDelete }) {
       >
         <div className={styles.topRow}>
           <h3 className={styles.title}>{board.title}</h3>
-          <div className={styles.menuWrapper} ref={menuRef}>
-            <button
-              type="button"
-              className={styles.menuBtn}
-              onClick={handleMenuToggle}
-              aria-label="Opcoes do board"
-            >
-              <MoreVertical size={16} />
-            </button>
-            {menuOpen && (
-              <div className={styles.menuDropdown}>
-                <button
-                  type="button"
-                  className={styles.menuItem}
-                  onClick={handleEdit}
-                >
-                  <Pencil size={14} />
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.menuItem} ${styles.menuItemDanger}`}
-                  onClick={handleDelete}
-                >
-                  <Trash2 size={14} />
-                  Deletar
-                </button>
-              </div>
-            )}
-          </div>
+          {board.is_owner && (
+            <div className={styles.menuWrapper} ref={menuRef}>
+              <button
+                type="button"
+                className={styles.menuBtn}
+                onClick={handleMenuToggle}
+                aria-label="Opcoes do board"
+              >
+                <MoreVertical size={16} />
+              </button>
+              {menuOpen && (
+                <div className={styles.menuDropdown}>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={handleEdit}
+                  >
+                    <Pencil size={14} />
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                    onClick={handleDelete}
+                  >
+                    <Trash2 size={14} />
+                    Deletar
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {truncatedDesc && (

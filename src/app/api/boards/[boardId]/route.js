@@ -2,18 +2,18 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { updateBoardSchema } from '@/lib/validators';
 
-async function checkMembership(supabase, boardId) {
+async function getUserBoardRole(supabase, boardId) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return false;
+  if (!user) return { user: null, role: null };
   const { data } = await supabase
     .from('board_members')
-    .select('id')
+    .select('role')
     .eq('board_id', boardId)
     .eq('user_id', user.id)
-    .limit(1);
-  return data && data.length > 0;
+    .single();
+  return { user, role: data?.role || null };
 }
 
 export async function GET(request, { params }) {
@@ -64,15 +64,15 @@ export async function GET(request, { params }) {
     };
   });
 
-  // Verificar se usuario atual e membro
-  const canEdit = await checkMembership(supabase, boardId);
+  // Verificar role do usuario atual
+  const { user: currentUser, role: userRole } = await getUserBoardRole(supabase, boardId);
+  const canEdit = !!userRole;
+  const isOwner = userRole === 'owner';
 
   // Se nao e membro, verificar se tem solicitacao pendente
   let joinRequestStatus = null;
-  if (!canEdit) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  if (!canEdit && currentUser) {
+    const user = currentUser;
     if (user) {
       const { data: joinRequest } = await supabase
         .from('join_requests')
@@ -86,7 +86,7 @@ export async function GET(request, { params }) {
   }
 
   return NextResponse.json({
-    board: { ...board, can_edit: canEdit, join_request_status: joinRequestStatus },
+    board: { ...board, can_edit: canEdit, is_owner: isOwner, join_request_status: joinRequestStatus },
     columns: columns || [],
     tasks: tasks || [],
     members,
@@ -97,11 +97,11 @@ export async function PATCH(request, { params }) {
   const { boardId } = await params;
   const supabase = await createServerClient();
 
-  // Verificar permissao
-  const isMember = await checkMembership(supabase, boardId);
-  if (!isMember) {
+  // Apenas owners podem editar o board
+  const { role } = await getUserBoardRole(supabase, boardId);
+  if (role !== 'owner') {
     return NextResponse.json(
-      { error: 'Sem permissao para editar este board' },
+      { error: 'Apenas administradores podem editar este board' },
       { status: 403 }
     );
   }
@@ -147,11 +147,11 @@ export async function DELETE(request, { params }) {
   const { boardId } = await params;
   const supabase = await createServerClient();
 
-  // Verificar permissao
-  const isMember = await checkMembership(supabase, boardId);
-  if (!isMember) {
+  // Apenas owners podem deletar o board
+  const { role } = await getUserBoardRole(supabase, boardId);
+  if (role !== 'owner') {
     return NextResponse.json(
-      { error: 'Sem permissao para deletar este board' },
+      { error: 'Apenas administradores podem deletar este board' },
       { status: 403 }
     );
   }
@@ -175,12 +175,14 @@ export async function DELETE(request, { params }) {
 
   const taskIds = (tasks || []).map((t) => t.id);
 
-  // Deletar em cascata: comments → tasks → columns → board_members → board
+  // Deletar em cascata: comments → exec_log → tasks → columns → join_requests → board_members → board
   if (taskIds.length > 0) {
     await supabase.from('task_comments').delete().in('task_id', taskIds);
+    await supabase.from('task_execution_log').delete().in('task_id', taskIds);
   }
   await supabase.from('tasks').delete().eq('board_id', boardId);
   await supabase.from('columns').delete().eq('board_id', boardId);
+  await supabase.from('join_requests').delete().eq('board_id', boardId);
   await supabase.from('board_members').delete().eq('board_id', boardId);
   await supabase.from('boards').delete().eq('id', boardId);
 

@@ -21,13 +21,15 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let userBoardIds = new Set();
+  let userMemberships = {};
   if (user) {
     const { data: memberships } = await supabase
       .from('board_members')
-      .select('board_id')
+      .select('board_id, role')
       .eq('user_id', user.id);
-    userBoardIds = new Set((memberships || []).map((m) => m.board_id));
+    (memberships || []).forEach((m) => {
+      userMemberships[m.board_id] = m.role;
+    });
   }
 
   // Enrich with member_count, task_count e can_edit
@@ -43,11 +45,13 @@ export async function GET() {
         .select('id')
         .eq('board_id', board.id);
 
+      const userRole = userMemberships[board.id] || null;
       return {
         ...board,
         member_count: members?.length || 0,
         task_count: tasks?.length || 0,
-        can_edit: userBoardIds.has(board.id),
+        can_edit: !!userRole,
+        is_owner: userRole === 'owner',
       };
     })
   );

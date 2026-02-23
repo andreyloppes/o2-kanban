@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { staggerContainer } from '@/lib/motion';
 import useBoardStore from '@/stores/useBoardStore';
 import useUIStore from '@/stores/useUIStore';
+import useDragScroll from '@/hooks/useDragScroll';
 import FilterBar from './FilterBar';
 import PomodoroWidget from './PomodoroWidget';
 import JoinRequestButton from '@/components/Members/JoinRequestButton';
@@ -16,6 +17,7 @@ export default function Board({ title, children }) {
   const board = useBoardStore((state) => state.board);
   const members = useBoardStore((state) => state.members);
   const currentAssignee = useUIStore((state) => state.filters.assignee);
+  const dragScrollRef = useDragScroll();
 
   const visibleMembers = members.slice(0, 4);
   const extraCount = Math.max(0, members.length - 4);
@@ -93,7 +95,7 @@ export default function Board({ title, children }) {
 
       <FilterBar />
 
-      <motion.div className="board-content" variants={staggerContainer} initial="hidden" animate="visible">
+      <motion.div className="board-content" ref={dragScrollRef} variants={staggerContainer} initial="hidden" animate="visible">
         {children}
       </motion.div>
 

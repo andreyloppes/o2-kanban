@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings, KanbanSquare, ChevronLeft, LogOut } from "lucide-react";
+import { LayoutDashboard, Settings, KanbanSquare, ChevronLeft, LogOut, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 import useUIStore from "@/stores/useUIStore";
 import useUserStore from "@/stores/useUserStore";
@@ -12,7 +12,8 @@ export default function Sidebar() {
     const toggleSidebar = useUIStore((state) => state.toggleSidebar);
     const pathname = usePathname();
 
-    const isBoards = pathname === "/" || pathname.startsWith("/board");
+    const isDashboard = pathname === '/dashboard';
+    const isBoards = pathname === "/" || (pathname.startsWith("/board") && !pathname.startsWith("/dashboard"));
     const isSettings = pathname === "/settings";
 
     const handleSignOut = () => {
@@ -54,6 +55,22 @@ export default function Sidebar() {
                     )}
                     <LayoutDashboard size={18} />
                     <span>Meus Quadros</span>
+                </Link>
+                <Link
+                    href="/dashboard"
+                    className={`nav-item ${isDashboard ? 'active' : ''}`}
+                    aria-current={isDashboard ? "page" : undefined}
+                    title={sidebarCollapsed ? "Dashboard" : undefined}
+                >
+                    {isDashboard && (
+                        <motion.div
+                            className="nav-indicator"
+                            layoutId="nav-indicator"
+                            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        />
+                    )}
+                    <BarChart3 size={18} />
+                    <span>Dashboard</span>
                 </Link>
                 <Link
                     href="/settings"

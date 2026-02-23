@@ -60,6 +60,7 @@ export default function TaskModal() {
   const [editEstimatedMin, setEditEstimatedMin] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [suggestion, setSuggestion] = useState(null);
 
   // Sync local state when task changes
   useEffect(() => {
@@ -74,7 +75,26 @@ export default function TaskModal() {
       setEditEstimatedMin(task.estimated_duration_min ?? null);
       setErrors({});
       setIsSaving(false);
+      setSuggestion(null);
     }
+  }, [task]);
+
+  // Fetch estimation suggestion when modal opens without manual estimate
+  useEffect(() => {
+    if (!task || task.estimated_duration_min != null) return;
+    let cancelled = false;
+    fetch(`/api/tasks/${task.id}/execution-log`)
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (!cancelled && data && data.average_duration_min > 0) {
+          setSuggestion({
+            minutes: data.average_duration_min,
+            count: data.sample_count,
+          });
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [task]);
 
   // Dirty check
@@ -282,6 +302,27 @@ export default function TaskModal() {
                 disabled={!canEdit}
                 placeholder="Sem estimativa"
               />
+              {suggestion && editEstimatedMin == null && (
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                  Sugerido: {Math.floor(suggestion.minutes / 60)}h {suggestion.minutes % 60}m (baseado em {suggestion.count} {suggestion.count === 1 ? 'tarefa' : 'tarefas'}){' '}
+                  <button
+                    type="button"
+                    onClick={() => setEditEstimatedMin(suggestion.minutes)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--accent)',
+                      cursor: 'pointer',
+                      padding: 0,
+                      fontSize: '0.75rem',
+                      fontFamily: 'inherit',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Usar sugestao
+                  </button>
+                </span>
+              )}
             </FormField>
           </div>
 

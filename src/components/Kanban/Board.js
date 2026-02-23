@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users } from 'lucide-react';
+import { ArrowLeft, Users, BarChart3, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { staggerContainer } from '@/lib/motion';
 import useBoardStore from '@/stores/useBoardStore';
@@ -8,6 +8,8 @@ import useUIStore from '@/stores/useUIStore';
 import FilterBar from './FilterBar';
 import PomodoroWidget from './PomodoroWidget';
 import JoinRequestButton from '@/components/Members/JoinRequestButton';
+import AIToggleButton from '@/components/AI/AIToggleButton';
+import ChatPanel from '@/components/AI/ChatPanel';
 
 export default function Board({ title, children }) {
   const router = useRouter();
@@ -55,15 +57,34 @@ export default function Board({ title, children }) {
               </div>
             )}
           </div>
+          <AIToggleButton />
           {board?.can_edit ? (
-            <button
-              className="members-btn"
-              onClick={() => router.push(`/board/${board.id}/members`)}
-              title="Gerenciar membros"
-            >
-              <Users size={16} />
-              <span>Membros</span>
-            </button>
+            <>
+              <button
+                className="members-btn"
+                onClick={() => router.push(`/board/${board.id}/analytics`)}
+                title="Analitico"
+              >
+                <BarChart3 size={16} />
+              </button>
+              {board?.is_owner && (
+                <button
+                  className="members-btn"
+                  onClick={() => router.push(`/board/${board.id}/automations`)}
+                  title="Automacoes"
+                >
+                  <Zap size={16} />
+                </button>
+              )}
+              <button
+                className="members-btn"
+                onClick={() => router.push(`/board/${board.id}/members`)}
+                title="Gerenciar membros"
+              >
+                <Users size={16} />
+                <span>Membros</span>
+              </button>
+            </>
           ) : (
             <JoinRequestButton />
           )}
@@ -75,6 +96,8 @@ export default function Board({ title, children }) {
       <motion.div className="board-content" variants={staggerContainer} initial="hidden" animate="visible">
         {children}
       </motion.div>
+
+      <ChatPanel />
     </main>
   );
 }

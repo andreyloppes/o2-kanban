@@ -101,3 +101,19 @@ export const COLUMN_AGE_THRESHOLDS = {
 
 // --- Timer ---
 export const TIMER_UPDATE_INTERVAL_MS = 1000;
+
+// --- Automacoes ---
+export const AUTOMATION_TRIGGERS = {
+  task_moved_to_column: 'Tarefa movida para coluna',
+  task_created: 'Tarefa criada',
+  task_overdue: 'Tarefa atrasada',
+  timer_completed: 'Timer finalizado',
+};
+
+export const AUTOMATION_ACTIONS = {
+  set_priority: 'Definir prioridade',
+  assign_member: 'Atribuir responsavel',
+  log_execution: 'Registrar execucao',
+  move_to_column: 'Mover para coluna',
+  add_comment: 'Adicionar comentario',
+};

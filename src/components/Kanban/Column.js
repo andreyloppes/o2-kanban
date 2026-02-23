@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ChevronsLeft } from "lucide-react";
+import { ChevronsLeft, MoreHorizontal, Pencil, Trash2, Check, X } from "lucide-react";
 import { motion } from "framer-motion";
 import useBoardStore from "@/stores/useBoardStore";
 import useUIStore from "@/stores/useUIStore";
@@ -20,8 +20,17 @@ const columnVariant = {
 
 export default function Column({ column }) {
   const allTasks = useBoardStore((state) => state.tasks);
+  const board = useBoardStore((state) => state.board);
   const filters = useUIStore((state) => state.filters);
   const isCollapsed = useUIStore((state) => !!state.collapsedColumns[column.id]);
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(column.title);
+  const menuRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const canEdit = board?.can_edit;
 
   const columnTasks = useMemo(() => {
     return allTasks
@@ -63,6 +72,61 @@ export default function Column({ column }) {
     useUIStore.getState().toggleColumn(column.id);
   };
 
+  // Close menu on outside click
+  useEffect(() => {
+    if (!showMenu) return;
+    function handleClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showMenu]);
+
+  // Focus input when editing
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleStartEdit = () => {
+    setEditTitle(column.title);
+    setIsEditing(true);
+    setShowMenu(false);
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmed = editTitle.trim();
+    if (!trimmed || trimmed === column.title) {
+      setIsEditing(false);
+      return;
+    }
+    await useBoardStore.getState().updateColumn(column.id, { title: trimmed });
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditTitle(column.title);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSaveEdit();
+    if (e.key === 'Escape') handleCancelEdit();
+  };
+
+  const handleDelete = async () => {
+    setShowMenu(false);
+    if (columnTasks.length > 0) {
+      useUIStore.getState().addToast('Mova ou delete as tarefas antes de remover a coluna', 'error');
+      return;
+    }
+    await useBoardStore.getState().deleteColumn(column.id);
+  };
+
   if (isCollapsed) {
     return (
       <motion.div
@@ -91,10 +155,50 @@ export default function Column({ column }) {
       <div className="column-header">
         <div className="column-title-wrap">
           <span className={`status-dot ${colorClass}`} aria-hidden="true"></span>
-          <h2 className="column-title">{column.title}</h2>
+          {isEditing ? (
+            <div className="column-edit-wrap">
+              <input
+                ref={inputRef}
+                className="column-edit-input"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleSaveEdit}
+                maxLength={200}
+              />
+            </div>
+          ) : (
+            <h2 className="column-title">{column.title}</h2>
+          )}
         </div>
         <div className="column-meta">
           <span className="task-count">{countLabel}</span>
+          {canEdit && !isEditing && (
+            <div className="column-menu-wrap" ref={menuRef}>
+              <button
+                className="collapse-col-btn"
+                aria-label="Opcoes da coluna"
+                onClick={() => setShowMenu(!showMenu)}
+              >
+                <MoreHorizontal size={16} className="collapse-icon" />
+              </button>
+              {showMenu && (
+                <div className="column-dropdown">
+                  <button className="column-dropdown-item" onClick={handleStartEdit}>
+                    <Pencil size={14} />
+                    Renomear
+                  </button>
+                  <button
+                    className="column-dropdown-item column-dropdown-danger"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 size={14} />
+                    Excluir
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           <button
             className="collapse-col-btn"
             aria-label={`Recolher coluna ${column.title}`}
@@ -118,7 +222,7 @@ export default function Column({ column }) {
           </div>
         )}
 
-        <CreateTaskButton columnId={column.id} />
+        {canEdit && <CreateTaskButton columnId={column.id} />}
       </div>
     </motion.div>
   );

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import useBoardStore from '@/stores/useBoardStore';
 import Board from '@/components/Kanban/Board';
 import Column from '@/components/Kanban/Column';
+import AddColumnButton from '@/components/Kanban/AddColumnButton';
 import DndProvider from '@/components/Kanban/DndProvider';
 import TaskForm from '@/components/Kanban/TaskForm';
 import TaskModal from '@/components/Kanban/TaskModal';
@@ -84,6 +85,7 @@ export default function BoardPage() {
           {columns.map((col) => (
             <Column key={col.id} column={col} />
           ))}
+          {board?.can_edit && <AddColumnButton />}
         </Board>
       </DndProvider>
       <TaskForm />

@@ -66,3 +66,13 @@ export const updateUserSchema = z.object({
   email: z.string().email('Email invalido').max(200).optional(),
   avatar_color: z.string().max(20).optional(),
 });
+
+// --- Automacoes ---
+
+export const createAutomationSchema = z.object({
+  name: z.string().min(1, 'Nome e obrigatorio').max(200),
+  trigger_type: z.enum(['task_moved_to_column', 'task_created', 'task_overdue', 'timer_completed']),
+  trigger_config: z.record(z.any()).default({}),
+  action_type: z.enum(['set_priority', 'assign_member', 'log_execution', 'move_to_column', 'add_comment']),
+  action_config: z.record(z.any()).default({}),
+});

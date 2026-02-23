@@ -388,6 +388,18 @@ const useBoardStore = create((set, get) => ({
       });
 
       if (!res.ok) throw new Error('Falha ao mover tarefa');
+
+      // Auto-log execution when task moves to done column
+      if (isColumnChange) {
+        const targetColumn = get().columns.find((c) => c.id === targetColumnId);
+        if (targetColumn?.is_done_column && previousTask.timer_elapsed_ms > 0) {
+          fetch(`/api/tasks/${taskId}/execution-log`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          }).catch(() => {});
+        }
+      }
+
       return true;
     } catch (error) {
       // Rollback

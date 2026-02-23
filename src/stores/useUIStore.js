@@ -81,6 +81,12 @@ const useUIStore = create((set, get) => ({
     return type !== null || priority !== null || assignee !== null || search !== '';
   },
 
+  // === AI Chat ===
+  aiChatOpen: false,
+  toggleAIChat: () =>
+    set((state) => ({ aiChatOpen: !state.aiChatOpen })),
+  closeAIChat: () => set({ aiChatOpen: false }),
+
   // === Pomodoro ===
   pomodoro: {
     mode: 'idle', // 'idle' | 'focus' | 'shortBreak' | 'longBreak'

@@ -67,13 +67,36 @@ export async function GET(request, { params }) {
     return NextResponse.json({ average_duration_ms: null, sample_count: 0 });
   }
 
+  // Score logs by title word similarity
+  const taskWords = task.title
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 2);
+
+  let scoredLogs = logs;
+
+  if (taskWords.length > 0) {
+    const withScore = logs.map((log) => {
+      const logTitle = (log.title || '').toLowerCase();
+      const score = taskWords.filter((w) => logTitle.includes(w)).length;
+      return { ...log, score };
+    });
+
+    const matched = withScore.filter((l) => l.score > 0);
+
+    if (matched.length > 0) {
+      matched.sort((a, b) => b.score - a.score);
+      scoredLogs = matched.slice(0, 20);
+    }
+  }
+
   // Calcular media
-  const total = logs.reduce((sum, l) => sum + l.duration_ms, 0);
-  const avg = Math.round(total / logs.length);
+  const total = scoredLogs.reduce((sum, l) => sum + l.duration_ms, 0);
+  const avg = Math.round(total / scoredLogs.length);
 
   return NextResponse.json({
     average_duration_ms: avg,
     average_duration_min: Math.round(avg / 60000),
-    sample_count: logs.length,
+    sample_count: scoredLogs.length,
   });
 }

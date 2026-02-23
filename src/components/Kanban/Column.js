@@ -1,7 +1,9 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useDroppable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ChevronsLeft, MoreHorizontal, Pencil, Trash2, Check, X } from "lucide-react";
+import { ChevronsLeft, MoreHorizontal, Pencil, Trash2, Check, X, GripVertical } from "lucide-react";
 import { motion } from "framer-motion";
 import useBoardStore from "@/stores/useBoardStore";
 import useUIStore from "@/stores/useUIStore";
@@ -32,6 +34,25 @@ export default function Column({ column }) {
 
   const canEdit = board?.can_edit;
 
+  // Sortable for column reordering
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setSortableRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: column.id,
+    data: { type: 'Column' },
+  });
+
+  const sortableStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   const columnTasks = useMemo(() => {
     return allTasks
       .filter((t) => t.column_id === column.id)
@@ -60,7 +81,7 @@ export default function Column({ column }) {
 
   const hasActiveFilters = filters.type !== null || filters.priority !== null || filters.assignee !== null || filters.search !== '';
 
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
     id: column.id,
   });
 
@@ -130,13 +151,17 @@ export default function Column({ column }) {
   if (isCollapsed) {
     return (
       <motion.div
-        ref={setNodeRef}
+        ref={(node) => {
+          setSortableRef(node);
+          setDroppableRef(node);
+        }}
         className={`column-collapsed ${isOver ? "active-col" : ""}`}
         role="region"
         aria-label={`Coluna ${column.title} (recolhida)`}
         onClick={handleToggleCollapse}
         title={`Expandir coluna ${column.title}`}
         variants={columnVariant}
+        style={sortableStyle}
       >
         <span className={`status-dot ${colorClass}`} aria-hidden="true"></span>
         <span className="column-collapsed-count">{countLabel}</span>
@@ -147,13 +172,26 @@ export default function Column({ column }) {
 
   return (
     <motion.div
+      ref={setSortableRef}
       className={`column-container ${isOver ? "active-col" : ""}`}
       role="region"
       aria-label={`Coluna ${column.title}`}
       variants={columnVariant}
+      style={sortableStyle}
     >
       <div className="column-header">
         <div className="column-title-wrap">
+          {canEdit && (
+            <button
+              className="collapse-col-btn"
+              aria-label="Arrastar coluna"
+              style={{ cursor: 'grab', touchAction: 'none' }}
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical size={14} className="collapse-icon" />
+            </button>
+          )}
           <span className={`status-dot ${colorClass}`} aria-hidden="true"></span>
           {isEditing ? (
             <div className="column-edit-wrap">
@@ -209,7 +247,7 @@ export default function Column({ column }) {
         </div>
       </div>
 
-      <div ref={setNodeRef} className="column-content">
+      <div ref={setDroppableRef} className="column-content">
         <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
             <Card key={task.id} task={task} />

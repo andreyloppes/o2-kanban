@@ -34,6 +34,7 @@ export const moveTaskSchema = z.object({
 export const createColumnSchema = z.object({
   title: z.string().min(1, 'Titulo e obrigatorio').max(200),
   color: z.string().max(50).optional().default('neutral'),
+  position: z.number().positive().optional(),
 });
 
 export const updateColumnSchema = z.object({

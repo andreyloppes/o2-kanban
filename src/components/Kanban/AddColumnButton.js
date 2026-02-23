@@ -18,8 +18,12 @@ export default function AddColumnButton() {
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState('');
   const [color, setColor] = useState('neutral');
+  const [afterColumnId, setAfterColumnId] = useState('__last__');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef(null);
+  const columns = useBoardStore((state) => state.columns);
+
+  const sortedColumns = columns.slice().sort((a, b) => a.position - b.position);
 
   useEffect(() => {
     if (isAdding && inputRef.current) {
@@ -32,9 +36,10 @@ export default function AddColumnButton() {
     if (!trimmed || isSubmitting) return;
 
     setIsSubmitting(true);
-    await useBoardStore.getState().addColumn(trimmed, color);
+    await useBoardStore.getState().addColumn(trimmed, color, afterColumnId);
     setTitle('');
     setColor('neutral');
+    setAfterColumnId('__last__');
     setIsSubmitting(false);
     setIsAdding(false);
   };
@@ -42,6 +47,7 @@ export default function AddColumnButton() {
   const handleCancel = () => {
     setTitle('');
     setColor('neutral');
+    setAfterColumnId('__last__');
     setIsAdding(false);
   };
 
@@ -86,6 +92,32 @@ export default function AddColumnButton() {
           />
         ))}
       </div>
+      {sortedColumns.length > 0 && (
+        <select
+          value={afterColumnId}
+          onChange={(e) => setAfterColumnId(e.target.value)}
+          style={{
+            width: '100%',
+            background: 'rgba(255, 255, 255, 0.06)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 'var(--radius-sm)',
+            color: 'var(--text-primary)',
+            fontSize: '0.8rem',
+            padding: 'var(--space-2) var(--space-3)',
+            fontFamily: 'inherit',
+            outline: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          <option value="__first__">Inserir no inicio</option>
+          {sortedColumns.map((col) => (
+            <option key={col.id} value={col.id}>
+              Apos: {col.title}
+            </option>
+          ))}
+          <option value="__last__">Inserir no final</option>
+        </select>
+      )}
       <div className="add-column-actions">
         <button
           className="add-column-confirm"

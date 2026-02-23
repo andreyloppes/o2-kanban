@@ -7,17 +7,24 @@ import { POSITION_GAP } from "@/lib/constants";
 /**
  * Hook que encapsula toda a lógica de drag-and-drop do Kanban.
  * Gerencia activeId e handlers de DnD, com persistência via store.
+ * Suporta drag de tasks entre colunas e drag de colunas para reordenar.
  */
 export default function useDragAndDrop() {
   const [activeId, setActiveId] = useState(null);
+  const [activeType, setActiveType] = useState(null); // 'task' | 'column'
 
   const handleDragStart = useCallback((event) => {
+    const type = event.active.data.current?.type;
     setActiveId(event.active.id);
+    setActiveType(type === 'Column' ? 'column' : 'task');
   }, []);
 
   const handleDragOver = useCallback((event) => {
     const { active, over } = event;
     if (!over) return;
+
+    // Skip column drag-over (only handle on end)
+    if (active.data.current?.type === 'Column') return;
 
     const activeTaskId = active.id;
     const overId = over.id;
@@ -83,11 +90,22 @@ export default function useDragAndDrop() {
 
   const handleDragEnd = useCallback((event) => {
     const currentActiveId = activeId;
+    const currentActiveType = activeType;
     setActiveId(null);
+    setActiveType(null);
 
     const { active, over } = event;
     if (!over || !currentActiveId) return;
 
+    // Column reorder
+    if (currentActiveType === 'column') {
+      if (active.id !== over.id) {
+        useBoardStore.getState().reorderColumns(active.id, over.id);
+      }
+      return;
+    }
+
+    // Task drag
     const activeTaskId = active.id;
     const overId = over.id;
 
@@ -137,10 +155,11 @@ export default function useDragAndDrop() {
 
     // Persistir via store (optimistic + API)
     useBoardStore.getState().moveTask(activeTaskId, targetColumnId, newPosition);
-  }, [activeId]);
+  }, [activeId, activeType]);
 
   return {
     activeId,
+    activeType,
     handleDragStart,
     handleDragOver,
     handleDragEnd,

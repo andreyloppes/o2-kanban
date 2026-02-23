@@ -75,14 +75,43 @@ const useBoardStore = create((set, get) => ({
 
   // === Actions: Column CRUD ===
 
-  addColumn: async (title, color = 'neutral') => {
+  addColumn: async (title, color = 'neutral', afterColumnId = null) => {
     const boardId = get().board?.id;
     if (!boardId) return null;
 
     const tempId = `temp-col-${Date.now()}`;
-    const cols = get().columns;
-    const maxPos = cols.length > 0 ? Math.max(...cols.map((c) => c.position)) : 0;
-    const position = maxPos + POSITION_GAP;
+    const cols = get().columns.slice().sort((a, b) => a.position - b.position);
+
+    let position;
+    let insertIndex;
+
+    if (afterColumnId === '__first__') {
+      // Insert before the first column
+      position = cols.length > 0 ? cols[0].position / 2 : POSITION_GAP;
+      insertIndex = 0;
+    } else if (afterColumnId && afterColumnId !== '__last__') {
+      // Insert after a specific column
+      const afterIdx = cols.findIndex((c) => c.id === afterColumnId);
+      if (afterIdx === -1) {
+        // Fallback to end
+        const maxPos = cols.length > 0 ? Math.max(...cols.map((c) => c.position)) : 0;
+        position = maxPos + POSITION_GAP;
+        insertIndex = cols.length;
+      } else if (afterIdx === cols.length - 1) {
+        // After the last column
+        position = cols[afterIdx].position + POSITION_GAP;
+        insertIndex = cols.length;
+      } else {
+        // Between two columns
+        position = (cols[afterIdx].position + cols[afterIdx + 1].position) / 2;
+        insertIndex = afterIdx + 1;
+      }
+    } else {
+      // Default: append at the end
+      const maxPos = cols.length > 0 ? Math.max(...cols.map((c) => c.position)) : 0;
+      position = maxPos + POSITION_GAP;
+      insertIndex = cols.length;
+    }
 
     const optimisticCol = {
       id: tempId,
@@ -95,13 +124,17 @@ const useBoardStore = create((set, get) => ({
       created_at: new Date().toISOString(),
     };
 
-    set((state) => ({ columns: [...state.columns, optimisticCol] }));
+    set((state) => {
+      const sorted = state.columns.slice().sort((a, b) => a.position - b.position);
+      sorted.splice(insertIndex, 0, optimisticCol);
+      return { columns: sorted };
+    });
 
     try {
       const res = await fetch(`/api/boards/${boardId}/columns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, color }),
+        body: JSON.stringify({ title, color, position }),
       });
 
       if (!res.ok) throw new Error('Falha ao criar coluna');
@@ -118,6 +151,49 @@ const useBoardStore = create((set, get) => ({
       }));
       useUIStore.getState().addToast('Erro ao criar coluna', 'error');
       return null;
+    }
+  },
+
+  reorderColumns: async (activeColumnId, overColumnId) => {
+    const boardId = get().board?.id;
+    if (!boardId || activeColumnId === overColumnId) return;
+
+    const cols = get().columns.slice().sort((a, b) => a.position - b.position);
+    const oldIndex = cols.findIndex((c) => c.id === activeColumnId);
+    const newIndex = cols.findIndex((c) => c.id === overColumnId);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Calculate new position
+    let newPosition;
+    const reordered = [...cols];
+    const [moved] = reordered.splice(oldIndex, 1);
+    reordered.splice(newIndex, 0, moved);
+
+    if (newIndex === 0) {
+      newPosition = reordered.length > 1 ? reordered[1].position / 2 : POSITION_GAP;
+    } else if (newIndex === reordered.length - 1) {
+      newPosition = reordered[newIndex - 1].position + POSITION_GAP;
+    } else {
+      newPosition = (reordered[newIndex - 1].position + reordered[newIndex + 1].position) / 2;
+    }
+
+    moved.position = newPosition;
+
+    // Optimistic update
+    set({ columns: reordered });
+
+    try {
+      const res = await fetch(`/api/boards/${boardId}/columns/${activeColumnId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position: newPosition }),
+      });
+
+      if (!res.ok) throw new Error('Falha ao reordenar coluna');
+    } catch (error) {
+      // Rollback
+      set({ columns: cols });
+      useUIStore.getState().addToast('Erro ao reordenar coluna', 'error');
     }
   },
 

@@ -38,18 +38,25 @@ export async function POST(request, { params }) {
     );
   }
 
-  const { title, color } = parsed.data;
+  const { title, color, position: requestedPosition } = parsed.data;
 
-  // Calcular posicao (ultima coluna + GAP)
-  const { data: lastCol } = await supabase
-    .from('columns')
-    .select('position')
-    .eq('board_id', boardId)
-    .order('position', { ascending: false })
-    .limit(1)
-    .single();
+  let position;
 
-  const position = lastCol ? lastCol.position + POSITION_GAP : POSITION_GAP;
+  if (requestedPosition !== undefined) {
+    // Use the position provided by the client
+    position = requestedPosition;
+  } else {
+    // Default: append at the end
+    const { data: lastCol } = await supabase
+      .from('columns')
+      .select('position')
+      .eq('board_id', boardId)
+      .order('position', { ascending: false })
+      .limit(1)
+      .single();
+
+    position = lastCol ? lastCol.position + POSITION_GAP : POSITION_GAP;
+  }
 
   const { data: column, error } = await supabase
     .from('columns')

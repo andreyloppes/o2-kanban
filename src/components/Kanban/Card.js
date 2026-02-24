@@ -28,6 +28,7 @@ const getTypeIcon = (type) => {
 
 export default function Card({ task }) {
   const canEdit = useBoardStore((state) => state.board?.can_edit);
+  const members = useBoardStore((state) => state.members);
   const {
     attributes,
     listeners,
@@ -47,8 +48,14 @@ export default function Card({ task }) {
 
   const typeLabel = TASK_TYPES[task.type] || task.type;
 
-  function handleClick() {
-    if (!isDragging) {
+  const isSelected = useUIStore((state) => state.selectedTaskIds.includes(task.id));
+
+  function handleClick(e) {
+    if (isDragging) return;
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      useUIStore.getState().toggleTaskSelection(task.id);
+    } else {
       useUIStore.getState().openTaskModal(task.id);
     }
   }
@@ -57,7 +64,7 @@ export default function Card({ task }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`card ${isDragging ? "dragging" : ""}`}
+      className={`card ${isDragging ? "dragging" : ""} ${isSelected ? "card-selected" : ""}`}
       role="article"
       aria-label={task.title}
       onClick={handleClick}
@@ -95,18 +102,33 @@ export default function Card({ task }) {
         </div>
       )}
 
-      {task.assignee && (
-        <div className="card-footer">
-          <div className="card-meta" />
-          <div
-            className="avatar"
-            title={task.assignee}
-            aria-label={`Responsavel: ${task.assignee}`}
-          >
-            {task.assignee.charAt(0).toUpperCase()}
+      {task.assignee && (() => {
+        const member = members.find(m => m.user?.slug === task.assignee);
+        const user = member?.user;
+        return (
+          <div className="card-footer">
+            <div className="card-meta" />
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.name || task.assignee}
+                className="card-avatar-img"
+                title={user.name || task.assignee}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div
+                className="avatar"
+                style={user?.avatar_color ? { background: user.avatar_color } : undefined}
+                title={user?.name || task.assignee}
+                aria-label={`Responsavel: ${user?.name || task.assignee}`}
+              >
+                {(user?.name || task.assignee).charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

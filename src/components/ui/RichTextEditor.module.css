@@ -1,0 +1,280 @@
+/* ============================================
+   RichTextEditor — Dark-themed Tiptap wrapper
+   ============================================ */
+
+.container {
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius, var(--radius-md));
+  background: var(--input-bg);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.container:hover {
+  background: var(--input-bg-hover, #22252a);
+}
+
+.containerFocused {
+  border-color: var(--input-border-focus, var(--accent));
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+/* ---- Toolbar ---- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbarBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.toolbarBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.toolbarBtnActive {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--accent);
+}
+
+.toolbarBtnActive:hover {
+  background: rgba(52, 211, 153, 0.18);
+  color: var(--accent);
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 20px;
+  align-self: center;
+  background: var(--border);
+  margin: 0 var(--space-1);
+}
+
+/* ---- Editor Content ---- */
+
+.editor {
+  padding: var(--space-2) var(--space-3);
+  min-height: 120px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--input-text, var(--text-primary));
+}
+
+.editor :global(.ProseMirror) {
+  outline: none;
+  min-height: 100px;
+}
+
+.editor :global(.ProseMirror) h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0.8rem 0 0.4rem;
+  color: var(--text-primary);
+}
+
+.editor :global(.ProseMirror) h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.6rem 0 0.3rem;
+  color: var(--text-primary);
+}
+
+.editor :global(.ProseMirror) p {
+  margin: 0.3rem 0;
+}
+
+.editor :global(.ProseMirror) ul,
+.editor :global(.ProseMirror) ol {
+  padding-left: 1.2rem;
+  margin: 0.3rem 0;
+}
+
+.editor :global(.ProseMirror) li {
+  margin: 0.15rem 0;
+}
+
+.editor :global(.ProseMirror) li p {
+  margin: 0;
+}
+
+.editor :global(.ProseMirror) code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+}
+
+.editor :global(.ProseMirror) pre {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  margin: 0.5rem 0;
+  overflow-x: auto;
+}
+
+.editor :global(.ProseMirror) pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+.editor :global(.ProseMirror) blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.editor :global(.ProseMirror) a {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.editor :global(.ProseMirror) a:hover {
+  color: var(--accent-hover);
+}
+
+.editor :global(.ProseMirror) hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.75rem 0;
+}
+
+.editor :global(.ProseMirror) strong {
+  font-weight: 700;
+}
+
+.editor :global(.ProseMirror) em {
+  font-style: italic;
+}
+
+.editor :global(.ProseMirror) s {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Placeholder */
+.editor :global(.ProseMirror) p.is-editor-empty:first-child::before {
+  color: var(--text-muted);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ---- Viewer (read-only) ---- */
+
+.viewer {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.viewer h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0.8rem 0 0.4rem;
+  color: var(--text-primary);
+}
+
+.viewer h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.6rem 0 0.3rem;
+  color: var(--text-primary);
+}
+
+.viewer p {
+  margin: 0.3rem 0;
+}
+
+.viewer ul,
+.viewer ol {
+  padding-left: 1.2rem;
+  margin: 0.3rem 0;
+}
+
+.viewer li {
+  margin: 0.15rem 0;
+}
+
+.viewer li p {
+  margin: 0;
+}
+
+.viewer code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+}
+
+.viewer pre {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  margin: 0.5rem 0;
+  overflow-x: auto;
+}
+
+.viewer pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+.viewer blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.viewer a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.viewer a:hover {
+  color: var(--accent-hover);
+}
+
+.viewer hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.75rem 0;
+}
+
+.viewer strong {
+  font-weight: 700;
+}
+
+.viewer em {
+  font-style: italic;
+}
+
+.viewer s {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}

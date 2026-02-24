@@ -45,3 +45,10 @@
 .avatarBtn:hover .avatar {
   box-shadow: var(--avatar-active-ring);
 }
+
+.image {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}

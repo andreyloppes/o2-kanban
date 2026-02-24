@@ -14,10 +14,17 @@ import PrioritySelector from "@/components/ui/PrioritySelector";
 import IconButton from "@/components/ui/IconButton";
 import DateInput from "@/components/ui/DateInput";
 import DurationInput from "@/components/ui/DurationInput";
+import RichTextEditor from "@/components/ui/RichTextEditor";
+import RichTextViewer from "@/components/ui/RichTextViewer";
 import { motion } from "framer-motion";
 import { modalOverlay, modalContent } from "@/lib/motion";
 import TaskTimerControls from "@/components/ui/TaskTimerControls";
 import { getColumnAgeStatus } from "@/lib/dateUtils";
+import LabelPicker from "@/components/ui/LabelPicker";
+import LabelBadge from "@/components/ui/LabelBadge";
+import SubtaskList from "@/components/ui/SubtaskList";
+import DependencyList from "@/components/ui/DependencyList";
+import ActivityFeed from "@/components/ui/ActivityFeed";
 import CommentSection from "./CommentSection";
 import styles from "./TaskModal.module.css";
 
@@ -47,7 +54,8 @@ export default function TaskModal() {
   );
   const columns = useBoardStore((state) => state.columns);
   const members = useBoardStore((state) => state.members);
-  const canEdit = useBoardStore((state) => state.board?.can_edit);
+  const board = useBoardStore((state) => state.board);
+  const canEdit = board?.can_edit;
 
   // Editable state
   const [editTitle, setEditTitle] = useState("");
@@ -61,6 +69,8 @@ export default function TaskModal() {
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [suggestion, setSuggestion] = useState(null);
+  const [boardLabels, setBoardLabels] = useState([]);
+  const [taskLabelIds, setTaskLabelIds] = useState([]);
 
   // Sync local state when task changes
   useEffect(() => {
@@ -78,6 +88,47 @@ export default function TaskModal() {
       setSuggestion(null);
     }
   }, [task]);
+
+  // Fetch labels when modal opens
+  useEffect(() => {
+    if (!task || !board?.id) return;
+    let cancelled = false;
+    Promise.all([
+      fetch(`/api/boards/${board.id}/labels`).then((r) => r.ok ? r.json() : { labels: [] }),
+      fetch(`/api/tasks/${task.id}/labels`).then((r) => r.ok ? r.json() : { labels: [] }),
+    ]).then(([boardData, taskData]) => {
+      if (cancelled) return;
+      setBoardLabels(boardData.labels || []);
+      setTaskLabelIds((taskData.labels || []).map((l) => l.id));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [task, board?.id]);
+
+  async function handleLabelToggle(labelId, isAdding) {
+    if (isAdding) {
+      setTaskLabelIds((prev) => [...prev, labelId]);
+      await fetch(`/api/tasks/${task.id}/labels`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label_id: labelId }),
+      });
+    } else {
+      setTaskLabelIds((prev) => prev.filter((id) => id !== labelId));
+      await fetch(`/api/tasks/${task.id}/labels?label_id=${labelId}`, { method: 'DELETE' });
+    }
+  }
+
+  async function handleCreateLabel(name, color) {
+    const res = await fetch(`/api/boards/${board.id}/labels`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, color }),
+    });
+    if (res.ok) {
+      const { label } = await res.json();
+      setBoardLabels((prev) => [...prev, label]);
+    }
+  }
 
   // Fetch estimation suggestion when modal opens without manual estimate
   useEffect(() => {
@@ -270,17 +321,16 @@ export default function TaskModal() {
             </FormField>
           </div>
 
-          <FormField label="Descricao" htmlFor="modal-desc">
-            <Input
-              id="modal-desc"
-              type="textarea"
-              value={editDescription}
-              onChange={(e) => setEditDescription(e.target.value)}
-              placeholder="Adicione uma descricao..."
-              maxLength={5000}
-              rows={4}
-              disabled={!canEdit}
-            />
+          <FormField label="Descricao">
+            {canEdit ? (
+              <RichTextEditor
+                content={editDescription}
+                onChange={setEditDescription}
+                placeholder="Adicione uma descricao..."
+              />
+            ) : (
+              <RichTextViewer content={task.description} />
+            )}
           </FormField>
 
           <div className={styles.formGrid}>
@@ -350,6 +400,23 @@ export default function TaskModal() {
             </FormField>
           </div>
 
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+            {taskLabelIds.map((lid) => {
+              const label = boardLabels.find((l) => l.id === lid);
+              return label ? <LabelBadge key={lid} name={label.name} color={label.color} /> : null;
+            })}
+            {canEdit && (
+              <LabelPicker
+                boardId={board?.id}
+                taskId={task.id}
+                selectedLabelIds={taskLabelIds}
+                onToggle={handleLabelToggle}
+                labels={boardLabels}
+                onCreateLabel={handleCreateLabel}
+              />
+            )}
+          </div>
+
           {canEdit && <TaskTimerControls taskId={task.id} />}
 
           <div className={styles.metaSection}>
@@ -378,7 +445,10 @@ export default function TaskModal() {
             })()}
           </div>
 
+          <SubtaskList taskId={task.id} canEdit={canEdit} />
+          <DependencyList taskId={task.id} canEdit={canEdit} />
           <CommentSection taskId={task.id} />
+          {board?.id && <ActivityFeed boardId={board.id} taskId={task.id} limit={10} />}
         </div>
 
         <div className={styles.footer}>

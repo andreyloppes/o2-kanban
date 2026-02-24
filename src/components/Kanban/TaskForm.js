@@ -13,6 +13,7 @@ import FormField from "@/components/ui/FormField";
 import TaskTypeSelector from "@/components/ui/TaskTypeSelector";
 import PrioritySelector from "@/components/ui/PrioritySelector";
 import DateInput from "@/components/ui/DateInput";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 import styles from "./TaskForm.module.css";
 
 export default function TaskForm() {
@@ -173,15 +174,11 @@ export default function TaskForm() {
               </FormField>
             </div>
 
-            <FormField label="Descricao" htmlFor="task-desc">
-              <Input
-                id="task-desc"
-                type="textarea"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+            <FormField label="Descricao">
+              <RichTextEditor
+                content={description}
+                onChange={setDescription}
                 placeholder="Descricao (opcional)..."
-                maxLength={5000}
-                rows={3}
               />
             </FormField>
 

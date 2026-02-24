@@ -10,6 +10,7 @@ import { TASK_TYPES, TASK_PRIORITIES } from '@/lib/constants';
 import SearchBar from '@/components/ui/SearchBar';
 import FilterDropdown from '@/components/ui/FilterDropdown';
 import FilterChip from '@/components/ui/FilterChip';
+import SavedViews from '@/components/Kanban/SavedViews';
 import styles from './FilterBar.module.css';
 
 const typeOptions = Object.entries(TASK_TYPES).map(([value, label]) => ({
@@ -110,6 +111,7 @@ export default function FilterBar() {
           selected={filters.assignee}
           onChange={handleAssigneeChange}
         />
+        <SavedViews />
       </div>
 
       {hasActiveFilters && (

@@ -254,6 +254,115 @@
 }
 
 /* ============================================
+   Light Theme Tokens
+   ============================================ */
+
+[data-theme="light"] {
+  /* Background Scale */
+  --bg-app: #f0f2f6;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-elevated: #f8f9fb;
+  --bg-overlay: rgba(0, 0, 0, 0.45);
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* Brand — slightly darker for white bg contrast */
+  --accent: #059669;
+  --accent-hover: #047857;
+
+  /* Borders */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --border-focus: #059669;
+
+  /* Form Inputs */
+  --input-bg: #f8fafc;
+  --input-bg-hover: #f1f5f9;
+  --input-border: rgba(0, 0, 0, 0.1);
+  --input-text: #0f172a;
+  --input-placeholder: #94a3b8;
+
+  /* Glass Morphism */
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(0, 0, 0, 0.08);
+
+  /* Shadows */
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(5,150,105,0.25);
+  --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.06);
+  --shadow-card-active: 0 8px 20px rgba(0,0,0,0.12), 0 0 0 1px rgba(5,150,105,0.2);
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0,0,0,0.06);
+
+  /* Column */
+  --column-bg: rgba(248, 249, 251, 0.85);
+  --column-border: rgba(0, 0, 0, 0.05);
+  --column-header-border: rgba(0, 0, 0, 0.07);
+
+  /* Sidebar */
+  --sidebar-bg: linear-gradient(180deg, #f8f9fb 0%, #ffffff 100%);
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+
+  /* Skeleton */
+  --skeleton-base: rgba(0, 0, 0, 0.06);
+  --skeleton-shine: rgba(0, 0, 0, 0.1);
+
+  /* Card */
+  --card-hover-glow: 0 0 16px rgba(5, 150, 105, 0.08), 0 4px 12px rgba(0, 0, 0, 0.1);
+  --card-drag-glow: 0 0 24px rgba(5, 150, 105, 0.15), 0 12px 32px rgba(0, 0, 0, 0.18);
+  --card-accent-gradient: linear-gradient(180deg, #059669 0%, #0891b2 100%);
+
+  /* Filter */
+  --filter-bg: #ffffff;
+  --filter-border: rgba(0, 0, 0, 0.08);
+  --filter-dropdown-bg: #ffffff;
+  --filter-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* Board Card */
+  --board-card-bg: #ffffff;
+  --board-card-bg-hover: #f8f9fb;
+  --board-card-border: rgba(0, 0, 0, 0.08);
+  --board-card-border-hover: rgba(0, 0, 0, 0.15);
+  --board-card-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+
+  /* Settings */
+  --settings-card-bg: #ffffff;
+  --settings-card-border: rgba(0, 0, 0, 0.08);
+
+  /* Search */
+  --search-bg: #f8fafc;
+  --search-bg-focus: #ffffff;
+  --search-icon: #94a3b8;
+  --search-icon-focus: #475569;
+  --search-shortcut-bg: rgba(0, 0, 0, 0.06);
+  --search-shortcut-text: #94a3b8;
+  --search-shortcut-border: rgba(0, 0, 0, 0.1);
+
+  /* Comments */
+  --comment-bg: #ffffff;
+  --comment-border: rgba(0, 0, 0, 0.08);
+  --comment-input-bg: #f8fafc;
+
+  /* Timer */
+  --timer-bg: rgba(5, 150, 105, 0.08);
+  --timer-bg-running: rgba(5, 150, 105, 0.12);
+  --timer-border: rgba(5, 150, 105, 0.2);
+  --timer-border-running: rgba(5, 150, 105, 0.3);
+
+  /* Glow */
+  --glow-accent: 0 0 16px rgba(5, 150, 105, 0.12);
+  --glow-accent-strong: 0 0 24px rgba(5, 150, 105, 0.2);
+
+  /* Gradient */
+  --gradient-accent: linear-gradient(135deg, #059669 0%, #0891b2 100%);
+  --gradient-accent-subtle: linear-gradient(135deg, rgba(5,150,105,0.08), rgba(8,145,178,0.08));
+}
+
+/* ============================================
    Reset & Base
    ============================================ */
 

@@ -81,6 +81,10 @@ const useUIStore = create((set, get) => ({
     return type !== null || priority !== null || assignee !== null || search !== '';
   },
 
+  // === Board View ===
+  boardView: 'kanban',
+  setBoardView: (view) => set({ boardView: view }),
+
   // === AI Chat ===
   aiChatOpen: false,
   toggleAIChat: () =>
@@ -111,6 +115,31 @@ const useUIStore = create((set, get) => ({
         linkedTaskId: null,
       },
     }),
+
+  // === Shortcuts Modal ===
+  shortcutsModalOpen: false,
+  toggleShortcutsModal: () =>
+    set((state) => ({ shortcutsModalOpen: !state.shortcutsModalOpen })),
+  setShortcutsModalOpen: (open) => set({ shortcutsModalOpen: open }),
+
+  // === Command Palette ===
+  commandPaletteOpen: false,
+  toggleCommandPalette: () =>
+    set((state) => ({ commandPaletteOpen: !state.commandPaletteOpen })),
+  setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
+
+  // === Task Selection (Bulk Actions) ===
+  selectedTaskIds: [],
+  toggleTaskSelection: (taskId) =>
+    set((state) => {
+      const ids = state.selectedTaskIds;
+      return {
+        selectedTaskIds: ids.includes(taskId)
+          ? ids.filter((id) => id !== taskId)
+          : [...ids, taskId],
+      };
+    }),
+  clearTaskSelection: () => set({ selectedTaskIds: [] }),
 
   // === Toasts ===
   toasts: [],

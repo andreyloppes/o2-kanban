@@ -8,7 +8,7 @@ const SIZE_MAP = {
   lg: 'sizeLg',
 };
 
-export default function Avatar({ name, color, size = 'md', onClick, active }) {
+export default function Avatar({ name, color, size = 'md', onClick, active, avatarUrl }) {
   const initial = name ? name.charAt(0).toUpperCase() : '?';
   const sizeClass = styles[SIZE_MAP[size] || SIZE_MAP.md];
   const activeClass = active ? styles.active : '';
@@ -16,10 +16,14 @@ export default function Avatar({ name, color, size = 'md', onClick, active }) {
   const avatarContent = (
     <span
       className={`${styles.avatar} ${sizeClass} ${activeClass}`}
-      style={{ backgroundColor: color || '#3b82f6' }}
+      style={{ backgroundColor: avatarUrl ? 'transparent' : (color || '#3b82f6') }}
       title={name}
     >
-      {initial}
+      {avatarUrl ? (
+        <img src={avatarUrl} alt={name} className={styles.image} referrerPolicy="no-referrer" />
+      ) : (
+        initial
+      )}
     </span>
   );
 

@@ -10,6 +10,11 @@ import FilterBar from './FilterBar';
 import PomodoroWidget from './PomodoroWidget';
 import JoinRequestButton from '@/components/Members/JoinRequestButton';
 import AIToggleButton from '@/components/AI/AIToggleButton';
+import ViewToggle from './ViewToggle';
+import NotificationCenter from '@/components/ui/NotificationCenter';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import BulkActions from './BulkActions';
+import SprintManager from './SprintManager';
 import ChatPanel from '@/components/AI/ChatPanel';
 
 export default function Board({ title, children }) {
@@ -17,7 +22,10 @@ export default function Board({ title, children }) {
   const board = useBoardStore((state) => state.board);
   const members = useBoardStore((state) => state.members);
   const currentAssignee = useUIStore((state) => state.filters.assignee);
+  const boardView = useUIStore((state) => state.boardView);
   const dragScrollRef = useDragScroll();
+  const isKanban = boardView === 'kanban';
+  const selectedTaskIds = useUIStore((state) => state.selectedTaskIds);
 
   const visibleMembers = members.slice(0, 4);
   const extraCount = Math.max(0, members.length - 4);
@@ -46,11 +54,20 @@ export default function Board({ title, children }) {
               <button
                 key={member.user?.slug || member.id}
                 className={`header-avatar header-avatar-btn ${currentAssignee === member.user?.slug ? 'avatar-active' : ''}`}
-                style={{ backgroundColor: member.user?.avatar_color || '#6b7280' }}
+                style={{ backgroundColor: member.user?.avatar_url ? 'transparent' : (member.user?.avatar_color || '#6b7280') }}
                 title={member.user?.name || 'Membro'}
                 onClick={() => handleAvatarClick(member.user?.slug)}
               >
-                {(member.user?.name || '?').charAt(0)}
+                {member.user?.avatar_url ? (
+                  <img
+                    src={member.user.avatar_url}
+                    alt={member.user.name || 'Membro'}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  (member.user?.name || '?').charAt(0)
+                )}
               </button>
             ))}
             {extraCount > 0 && (
@@ -59,7 +76,10 @@ export default function Board({ title, children }) {
               </div>
             )}
           </div>
+          <NotificationCenter />
+          <ThemeToggle />
           <AIToggleButton />
+          <ViewToggle />
           {board?.can_edit ? (
             <>
               <button
@@ -95,9 +115,24 @@ export default function Board({ title, children }) {
 
       <FilterBar />
 
-      <motion.div className="board-content" ref={dragScrollRef} variants={staggerContainer} initial="hidden" animate="visible">
-        {children}
-      </motion.div>
+      {selectedTaskIds.length > 0 && (
+        <BulkActions
+          selectedIds={selectedTaskIds}
+          onClearSelection={() => useUIStore.getState().clearTaskSelection()}
+        />
+      )}
+
+      {board?.id && <SprintManager boardId={board.id} />}
+
+      {isKanban ? (
+        <motion.div className="board-content" ref={dragScrollRef} variants={staggerContainer} initial="hidden" animate="visible">
+          {children}
+        </motion.div>
+      ) : (
+        <div className="board-content-view">
+          {children}
+        </div>
+      )}
 
       <ChatPanel />
     </main>

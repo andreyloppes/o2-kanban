@@ -66,6 +66,27 @@ export const updateUserSchema = z.object({
   name: z.string().min(1, 'Nome e obrigatorio').max(100).optional(),
   email: z.string().email('Email invalido').max(200).optional(),
   avatar_color: z.string().max(20).optional(),
+  avatar_url: z.string().url().max(500).nullable().optional(),
+});
+
+// --- Labels ---
+
+export const createLabelSchema = z.object({
+  name: z.string().min(1, 'Nome e obrigatorio').max(50),
+  color: z.string().max(20).default('#6b7280'),
+});
+
+export const updateLabelSchema = z.object({
+  name: z.string().min(1, 'Nome e obrigatorio').max(50).optional(),
+  color: z.string().max(20).optional(),
+});
+
+// --- Saved Views ---
+
+export const createViewSchema = z.object({
+  name: z.string().min(1, 'Nome e obrigatorio').max(100),
+  filters: z.record(z.any()).default({}),
+  view_type: z.enum(['kanban', 'list', 'table', 'calendar', 'gantt']).default('kanban'),
 });
 
 // --- Automacoes ---

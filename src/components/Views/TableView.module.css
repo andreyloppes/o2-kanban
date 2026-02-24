@@ -1,0 +1,249 @@
+.container {
+  padding: var(--space-4) var(--space-6);
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.taskCount {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  min-width: 820px;
+}
+
+/* ========== Header ========== */
+
+.thead {
+  display: grid;
+  grid-template-columns: 40px 2fr 90px 80px 140px 110px 70px 120px;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  z-index: 2;
+}
+
+.thCheckbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.th {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+  padding: var(--space-1) 0;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.th:hover {
+  color: var(--text-primary);
+}
+
+.sortIconInactive {
+  opacity: 0.3;
+  transition: opacity var(--transition-fast);
+}
+
+.th:hover .sortIconInactive {
+  opacity: 0.6;
+}
+
+.sortIconActive {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* ========== Body ========== */
+
+.tbody {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 40px 2fr 90px 80px 140px 110px 70px 120px;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.rowStripe {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.rowStripe:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ========== Checkbox ========== */
+
+.cellCheckbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+
+.checkbox:hover {
+  opacity: 1;
+}
+
+/* ========== Cells ========== */
+
+.cellTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  overflow: hidden;
+  padding-right: var(--space-2);
+}
+
+.titleText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cellType {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.cellPriority {
+  display: flex;
+  align-items: center;
+}
+
+.cellAssignee {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.assigneeName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noAssignee {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.cellDueDate {
+  display: flex;
+  align-items: center;
+}
+
+.cellPoints {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pointsBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-info);
+  background: rgba(129, 140, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.cellColumn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========== Empty State ========== */
+
+.empty {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}

@@ -1,0 +1,307 @@
+/* ============================================
+   Command Palette (Cmd+K)
+   ============================================ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding-top: 15vh;
+  animation: overlayIn 0.15s ease;
+}
+
+.container {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated), 0 0 60px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 460px;
+  animation: containerIn 0.2s ease;
+}
+
+/* Search Input Area */
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.searchIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.searchWrapperFocused .searchIcon {
+  color: var(--accent);
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 400;
+  outline: none;
+  min-width: 0;
+  letter-spacing: -0.01em;
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+.shortcutBadge {
+  display: flex;
+  align-items: center;
+  padding: 0.15rem 0.4rem;
+  background: rgba(107, 114, 128, 0.15);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Results Area */
+.results {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  gap: var(--space-2);
+}
+
+.emptyIcon {
+  opacity: 0.4;
+}
+
+/* Category Group */
+.categoryGroup {
+  padding-bottom: var(--space-1);
+}
+
+.categoryGroup:not(:first-child) {
+  padding-top: var(--space-1);
+}
+
+.categoryLabel {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* Result Item */
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.resultItem:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.resultItemSelected {
+  background: rgba(52, 211, 153, 0.08);
+  color: var(--text-primary);
+}
+
+.resultItemSelected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+}
+
+.resultIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.resultItemSelected .resultIcon,
+.resultItem:hover .resultIcon {
+  color: var(--accent);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.resultName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.resultBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.badgeNavigation {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.badgeAction {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.badgeFilter {
+  background: rgba(167, 139, 250, 0.1);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.enterHint {
+  display: flex;
+  align-items: center;
+  padding: 0.1rem 0.3rem;
+  background: rgba(107, 114, 128, 0.12);
+  border: 1px solid rgba(107, 114, 128, 0.25);
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.resultItemSelected .enterHint {
+  opacity: 1;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--border);
+  background: var(--glass-bg);
+}
+
+.footerHints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.footerHint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.footerKey {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: rgba(107, 114, 128, 0.15);
+  border: 1px solid rgba(107, 114, 128, 0.25);
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Animations */
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes containerIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .overlay {
+    padding-top: 10vh;
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .container {
+    max-height: 70vh;
+  }
+
+  .footerHints {
+    gap: var(--space-3);
+  }
+}

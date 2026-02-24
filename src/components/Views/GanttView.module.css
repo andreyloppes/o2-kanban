@@ -1,0 +1,212 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-6);
+  flex-shrink: 0;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.navBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.navLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 180px;
+  text-align: center;
+}
+
+/* Gantt grid */
+.gantt {
+  flex: 1;
+  overflow: auto;
+  padding: 0 var(--space-6) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sideHeader {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.dayHeaders {
+  display: grid;
+  margin-left: 180px;
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-primary);
+  z-index: 3;
+}
+
+.dayHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-1) 0;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  min-width: 32px;
+}
+
+.dayName {
+  font-weight: 500;
+}
+
+.dayNum {
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.weekend {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.todayHeader {
+  color: var(--accent);
+}
+
+.todayHeader .dayNum {
+  color: var(--accent);
+}
+
+/* Groups */
+.groupBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Row */
+.row {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.rowLabel {
+  width: 180px;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  padding-right: var(--space-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowTimeline {
+  flex: 1;
+  position: relative;
+  height: 100%;
+}
+
+.weekendStripe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+.todayLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-danger);
+  opacity: 0.6;
+  z-index: 2;
+  pointer-events: none;
+  border-left: 1px dashed var(--color-danger);
+  background: transparent;
+}
+
+.bar {
+  position: absolute;
+  top: 8px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  opacity: 0.85;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  z-index: 1;
+}
+
+.bar:hover {
+  opacity: 1;
+  transform: scaleY(1.15);
+}
+
+/* Undated section */
+.undatedSection {
+  border-top: 1px solid var(--glass-border);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.undatedHeader {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: var(--space-2) 0;
+}
+
+.undatedRow {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.undatedRow:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.empty {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}

@@ -1,0 +1,28 @@
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+[data-theme="light"] .btn {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}

@@ -1,0 +1,170 @@
+.container {
+  padding: var(--space-4) var(--space-6);
+  overflow-y: auto;
+  height: 100%;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+}
+
+.thead {
+  display: grid;
+  grid-template-columns: 40px 2fr 100px 80px 140px 120px 120px;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-primary);
+  z-index: 2;
+}
+
+.thStatus {}
+.thTitle {}
+.thType {}
+.thPriority {}
+.thAssignee {}
+.thDueDate {}
+.thColumn {}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-3);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.groupTitle {
+  color: var(--text-primary);
+}
+
+.groupCount {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 40px 2fr 100px 80px 140px 120px 120px;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cellStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cellTitle {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: var(--space-2);
+}
+
+.cellType {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.cellPriority {
+  display: flex;
+  align-items: center;
+}
+
+.cellAssignee {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.assigneeName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noAssignee {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.cellDueDate {
+  display: flex;
+  align-items: center;
+}
+
+.cellColumn {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}

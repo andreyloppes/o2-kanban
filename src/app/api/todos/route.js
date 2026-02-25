@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
-async function resolveUserSlug(supabase, user) {
-  const { data: profile } = await supabase
-    .from('users')
-    .select('slug')
-    .eq('id', user.id)
-    .maybeSingle();
-  return profile?.slug || user.email;
+// Usa o UUID do auth como user_slug — evita dependência do slug que pode ser null
+function resolveUserSlug(user) {
+  return user.id;
 }
 
 export async function GET() {
@@ -18,7 +14,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 });
   }
 
-  const userSlug = await resolveUserSlug(supabase, user);
+  const userSlug = resolveUserSlug(user);
 
   const { data: todos, error } = await supabase
     .from('personal_todos')
@@ -42,7 +38,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 });
   }
 
-  const userSlug = await resolveUserSlug(supabase, user);
+  const userSlug = resolveUserSlug(user);
 
   const body = await request.json();
   const { title, priority = 'medium', due_date, description, board_id } = body;

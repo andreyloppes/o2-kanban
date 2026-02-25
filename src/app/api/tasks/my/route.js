@@ -10,18 +10,14 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 });
   }
 
-  // Buscar slug do user atual
+  // Buscar slug do user atual (tabela users, nao board_members)
   const { data: profile } = await supabase
     .from('users')
     .select('slug')
     .eq('id', user.id)
-    .limit(1)
-    .single();
+    .maybeSingle();
 
-  const userSlug = profile?.slug;
-  if (!userSlug) {
-    return NextResponse.json({ tasks: [], boards: [] });
-  }
+  const userSlug = profile?.slug || null;
 
   const allMembers = searchParams.get('all') === 'true';
   const priorityFilter = searchParams.get('priority');
@@ -30,7 +26,7 @@ export async function GET(request) {
   // Buscar todos os boards onde o user e membro
   const { data: memberships } = await supabase
     .from('board_members')
-    .select('board_id, slug, name, avatar_color')
+    .select('board_id')
     .eq('user_id', user.id);
 
   const boardIds = (memberships || []).map((m) => m.board_id);
@@ -56,8 +52,11 @@ export async function GET(request) {
     .select('id, title, description, type, priority, assignee, due_date, start_date, column_id, board_id, position, created_at, updated_at, column_entered_at')
     .in('board_id', boardIds);
 
-  if (!allMembers) {
+  if (!allMembers && userSlug) {
     tasksQuery = tasksQuery.eq('assignee', userSlug);
+  } else if (!allMembers && !userSlug) {
+    // Sem slug, nao ha tasks atribuidas ao user
+    return NextResponse.json({ tasks: [], boards: boards || [] });
   }
 
   if (priorityFilter) {

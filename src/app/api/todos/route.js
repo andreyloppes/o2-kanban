@@ -10,14 +10,14 @@ export async function GET() {
   }
 
   // Buscar slug do user
-  const { data: member } = await supabase
-    .from('board_members')
+  const { data: profile } = await supabase
+    .from('users')
     .select('slug')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .limit(1)
     .single();
 
-  const userSlug = member?.slug || user.email;
+  const userSlug = profile?.slug || user.email;
 
   const { data: todos, error } = await supabase
     .from('personal_todos')
@@ -40,14 +40,14 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 });
   }
 
-  const { data: member } = await supabase
-    .from('board_members')
+  const { data: profile } = await supabase
+    .from('users')
     .select('slug')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .limit(1)
     .single();
 
-  const userSlug = member?.slug || user.email;
+  const userSlug = profile?.slug || user.email;
 
   const body = await request.json();
   const { title, priority = 'medium', due_date, description, board_id } = body;

@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 async function getUserSlug(supabase, userId) {
-  const { data: member } = await supabase
-    .from('board_members')
+  const { data: profile } = await supabase
+    .from('users')
     .select('slug')
-    .eq('user_id', userId)
+    .eq('id', userId)
     .limit(1)
     .single();
-  return member?.slug;
+  return profile?.slug;
 }
 
 export async function PATCH(request, { params }) {

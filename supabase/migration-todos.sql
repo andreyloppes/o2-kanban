@@ -41,8 +41,8 @@ CREATE POLICY "Usuarios acessam proprios todos"
   FOR ALL
   USING (
     user_slug = (
-      SELECT slug FROM board_members
-      WHERE user_id = auth.uid()
+      SELECT slug FROM users
+      WHERE id = auth.uid()
       LIMIT 1
     )
   );

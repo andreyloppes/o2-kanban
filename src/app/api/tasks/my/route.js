@@ -11,14 +11,14 @@ export async function GET(request) {
   }
 
   // Buscar slug do user atual
-  const { data: member } = await supabase
-    .from('board_members')
+  const { data: profile } = await supabase
+    .from('users')
     .select('slug')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .limit(1)
     .single();
 
-  const userSlug = member?.slug;
+  const userSlug = profile?.slug;
   if (!userSlug) {
     return NextResponse.json({ tasks: [], boards: [] });
   }

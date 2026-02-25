@@ -1,0 +1,134 @@
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  transition: background 0.1s;
+}
+
+.item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.done {
+  opacity: 0.5;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--board-card-border);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  color: white;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.checkbox:hover:not(.checkboxReadonly) {
+  border-color: var(--accent);
+}
+
+.checkboxDone {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkboxReadonly {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.titleDone {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.boardBadge {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  font-weight: 500;
+}
+
+.priorityBadge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.dateBadge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.dateOverdue {
+  color: #ef4444;
+}
+
+.assigneeBadge {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.columnBadge {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+
+.linkBtn {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.item:hover .linkBtn {
+  opacity: 1;
+}

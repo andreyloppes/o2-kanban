@@ -1,0 +1,120 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.boardSection {
+  background: var(--board-card-bg);
+  border: 1px solid var(--board-card-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.boardHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.1s;
+}
+
+.boardHeader:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.boardLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.boardTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.taskCount {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.boardRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.overdueTag {
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.miniProgress {
+  width: 60px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.miniProgressFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.pct {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 30px;
+  text-align: right;
+}
+
+.boardLink {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.boardHeader:hover .boardLink {
+  opacity: 1;
+}
+
+.taskList {
+  border-top: 1px solid var(--board-card-border);
+  padding: var(--space-1) 0;
+}
+
+.noTasks {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  color: var(--text-muted);
+  text-align: center;
+}

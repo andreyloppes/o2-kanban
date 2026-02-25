@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
+async function resolveUserSlug(supabase, user) {
+  const { data: profile } = await supabase
+    .from('users')
+    .select('slug')
+    .eq('id', user.id)
+    .maybeSingle();
+  return profile?.slug || user.email;
+}
+
 export async function GET() {
   const supabase = await createServerClient();
 
@@ -9,23 +18,16 @@ export async function GET() {
     return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 });
   }
 
-  // Buscar slug do user
-  const { data: profile } = await supabase
-    .from('users')
-    .select('slug')
-    .eq('id', user.id)
-    .limit(1)
-    .single();
-
-  const userSlug = profile?.slug || user.email;
+  const userSlug = await resolveUserSlug(supabase, user);
 
   const { data: todos, error } = await supabase
     .from('personal_todos')
-    .select('*, boards(id, title)')
+    .select('*')
     .eq('user_slug', userSlug)
     .order('created_at', { ascending: false });
 
   if (error) {
+    console.error('[GET /api/todos]', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
@@ -40,14 +42,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 });
   }
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('slug')
-    .eq('id', user.id)
-    .limit(1)
-    .single();
-
-  const userSlug = profile?.slug || user.email;
+  const userSlug = await resolveUserSlug(supabase, user);
 
   const body = await request.json();
   const { title, priority = 'medium', due_date, description, board_id } = body;
@@ -63,7 +58,7 @@ export async function POST(request) {
     .eq('user_slug', userSlug)
     .order('position', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   const position = lastTodo ? lastTodo.position + 1000 : 1000;
 
@@ -78,10 +73,11 @@ export async function POST(request) {
       board_id: board_id || null,
       position,
     })
-    .select('*, boards(id, title)')
+    .select('*')
     .single();
 
   if (error) {
+    console.error('[POST /api/todos]', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

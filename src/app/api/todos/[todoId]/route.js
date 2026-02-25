@@ -6,8 +6,7 @@ async function getUserSlug(supabase, userId) {
     .from('users')
     .select('slug')
     .eq('id', userId)
-    .limit(1)
-    .single();
+    .maybeSingle();
   return profile?.slug;
 }
 
@@ -37,10 +36,11 @@ export async function PATCH(request, { params }) {
     .update(updates)
     .eq('id', todoId)
     .eq('user_slug', userSlug)
-    .select('*, boards(id, title)')
+    .select('*')
     .single();
 
   if (error) {
+    console.error('[PATCH /api/todos/[todoId]]', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   if (!todo) {
@@ -71,6 +71,7 @@ export async function DELETE(request, { params }) {
     .eq('user_slug', userSlug);
 
   if (error) {
+    console.error('[DELETE /api/todos/[todoId]]', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

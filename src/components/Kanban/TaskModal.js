@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { X, Copy, BookOpen, Bug, Zap, Circle, Trash2 } from "lucide-react";
 import useUIStore from "@/stores/useUIStore";
 import useBoardStore from "@/stores/useBoardStore";
@@ -49,8 +49,10 @@ function formatDate(dateStr) {
 }
 
 function BoardTasksLink({ taskId }) {
-  const linkedTasks = useBoardTaskStore((state) =>
-    state.boardTasks.filter((t) => t.card_id === taskId)
+  const boardTasks = useBoardTaskStore((state) => state.boardTasks);
+  const linkedTasks = useMemo(
+    () => boardTasks.filter((t) => t.card_id === taskId),
+    [boardTasks, taskId]
   );
 
   if (linkedTasks.length === 0) return null;

@@ -10,6 +10,7 @@ import AddColumnButton from '@/components/Kanban/AddColumnButton';
 import DndProvider from '@/components/Kanban/DndProvider';
 import TaskForm from '@/components/Kanban/TaskForm';
 import TaskModal from '@/components/Kanban/TaskModal';
+import BoardTasksPanel from '@/components/Kanban/BoardTasksPanel';
 import BoardSkeleton from '@/components/ui/BoardSkeleton';
 import ListView from '@/components/Views/ListView';
 import TableView from '@/components/Views/TableView';
@@ -105,6 +106,7 @@ export default function BoardPage() {
       )}
       <TaskForm />
       <TaskModal />
+      <BoardTasksPanel boardId={boardId} />
     </>
   );
 }

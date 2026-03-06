@@ -12,7 +12,11 @@ export default function Sidebar() {
     const toggleSidebar = useUIStore((state) => state.toggleSidebar);
     const pathname = usePathname();
 
+    const boardTasksPanelOpen = useUIStore((state) => state.boardTasksPanelOpen);
+    const toggleBoardTasksPanel = useUIStore((state) => state.toggleBoardTasksPanel);
+
     const isDashboard = pathname === '/dashboard';
+    const isInsideBoard = pathname.startsWith("/board/");
     const isBoards = pathname === "/" || (pathname.startsWith("/board") && !pathname.startsWith("/dashboard"));
     const isSettings = pathname === "/settings";
     const isTasks = pathname === "/tasks";
@@ -105,6 +109,26 @@ export default function Sidebar() {
                     <Settings size={18} />
                     <span>Configuracoes</span>
                 </Link>
+                {isInsideBoard && (
+                    <>
+                        <div className="sidebar-divider" />
+                        <button
+                            className={`nav-item-button ${boardTasksPanelOpen ? 'active' : ''}`}
+                            onClick={toggleBoardTasksPanel}
+                            title={sidebarCollapsed ? "Tarefas" : undefined}
+                        >
+                            {boardTasksPanelOpen && (
+                                <motion.div
+                                    className="nav-indicator"
+                                    layoutId="nav-indicator-tasks"
+                                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                                />
+                            )}
+                            <CheckSquare size={18} />
+                            <span>Tarefas</span>
+                        </button>
+                    </>
+                )}
             </nav>
 
             <div className="sidebar-footer">

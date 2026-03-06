@@ -26,6 +26,7 @@ import SubtaskList from "@/components/ui/SubtaskList";
 import DependencyList from "@/components/ui/DependencyList";
 import ActivityFeed from "@/components/ui/ActivityFeed";
 import CommentSection from "./CommentSection";
+import useBoardTaskStore from "@/stores/useBoardTaskStore";
 import styles from "./TaskModal.module.css";
 
 const TYPE_ICONS = {
@@ -45,6 +46,44 @@ function formatDate(dateStr) {
   const hours = String(d.getHours()).padStart(2, "0");
   const minutes = String(d.getMinutes()).padStart(2, "0");
   return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+function BoardTasksLink({ taskId }) {
+  const linkedTasks = useBoardTaskStore((state) =>
+    state.boardTasks.filter((t) => t.card_id === taskId)
+  );
+
+  if (linkedTasks.length === 0) return null;
+
+  const completed = linkedTasks.filter((t) => t.is_completed).length;
+
+  function handleOpen() {
+    useUIStore.getState().toggleBoardTasksPanel();
+  }
+
+  return (
+    <div className={styles.metaSection}>
+      <button
+        type="button"
+        onClick={handleOpen}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          background: 'none',
+          border: 'none',
+          color: 'var(--text-secondary)',
+          fontSize: '0.8125rem',
+          cursor: 'pointer',
+          padding: 0,
+          fontFamily: 'inherit',
+        }}
+      >
+        <span style={{ fontWeight: 500 }}>Tarefas pessoais:</span>
+        <span>{completed}/{linkedTasks.length} concluidas</span>
+      </button>
+    </div>
+  );
 }
 
 export default function TaskModal() {
@@ -445,6 +484,7 @@ export default function TaskModal() {
             })()}
           </div>
 
+          <BoardTasksLink taskId={task.id} />
           <SubtaskList taskId={task.id} canEdit={canEdit} />
           <DependencyList taskId={task.id} canEdit={canEdit} />
           <CommentSection taskId={task.id} />

@@ -85,6 +85,12 @@ const useUIStore = create((set, get) => ({
   boardView: 'kanban',
   setBoardView: (view) => set({ boardView: view }),
 
+  // === Board Tasks Panel ===
+  boardTasksPanelOpen: false,
+  toggleBoardTasksPanel: () =>
+    set((state) => ({ boardTasksPanelOpen: !state.boardTasksPanelOpen })),
+  closeBoardTasksPanel: () => set({ boardTasksPanelOpen: false }),
+
   // === AI Chat ===
   aiChatOpen: false,
   toggleAIChat: () =>

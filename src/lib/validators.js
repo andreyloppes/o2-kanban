@@ -98,3 +98,22 @@ export const createAutomationSchema = z.object({
   action_type: z.enum(['set_priority', 'assign_member', 'log_execution', 'move_to_column', 'add_comment']),
   action_config: z.record(z.any()).default({}),
 });
+
+// --- Board Tasks (tarefas pessoais) ---
+
+export const createBoardTaskSchema = z.object({
+  title: z.string().min(1, 'Titulo e obrigatorio').max(500),
+  card_id: z.string().uuid().nullable().optional(),
+  description: z.string().max(5000).nullable().optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).default('medium'),
+  due_date: z.string().nullable().optional(),
+});
+
+export const updateBoardTaskSchema = z.object({
+  title: z.string().min(1, 'Titulo e obrigatorio').max(500).optional(),
+  card_id: z.string().uuid().nullable().optional(),
+  description: z.string().max(5000).nullable().optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+  due_date: z.string().nullable().optional(),
+  is_completed: z.boolean().optional(),
+});

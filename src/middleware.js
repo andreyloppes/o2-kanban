@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 export async function middleware(request) {
+  const { pathname } = request.nextUrl;
+
+  // API routes e auth callback — sem verificacao de auth no middleware
+  if (pathname.startsWith('/api/') || pathname.startsWith('/auth/callback')) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -25,27 +32,20 @@ export async function middleware(request) {
     }
   );
 
-  // Refresh de sessao — DEVE rodar para todas as rotas (incluindo /api/)
+  // getSession() le do cookie local — rapido, sem HTTP call externa
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
-
-  // API routes e auth callback — refresh cookies mas sem redirect
-  if (pathname.startsWith('/api/') || pathname.startsWith('/auth/callback')) {
-    return supabaseResponse;
-  }
+    data: { session },
+  } = await supabase.auth.getSession();
 
   // Nao autenticado → redirecionar para /login
-  if (!user && pathname !== '/login') {
+  if (!session && pathname !== '/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
   // Autenticado acessando /login → redirecionar para /
-  if (user && pathname === '/login') {
+  if (session && pathname === '/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/';
     return NextResponse.redirect(url);
@@ -56,6 +56,6 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 };

@@ -1,16 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const isMock =
-  !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.NEXT_PUBLIC_SUPABASE_URL.includes('SEU-PROJETO');
-
 export async function middleware(request) {
-  // Mock mode — sem auth, tudo liberado
-  if (isMock) {
-    return NextResponse.next();
-  }
-
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

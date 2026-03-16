@@ -31,25 +31,25 @@
 
 /* Selected states */
 .selectedLow {
-  border-color: var(--color-neutral) !important;
+  border-color: var(--color-neutral);
   background: rgba(107, 114, 128, 0.15);
   color: var(--text-primary);
 }
 
 .selectedMedium {
-  border-color: var(--color-warning) !important;
+  border-color: var(--color-warning);
   background: rgba(245, 158, 11, 0.15);
   color: var(--text-primary);
 }
 
 .selectedHigh {
-  border-color: #f97316 !important;
+  border-color: var(--color-high);
   background: rgba(249, 115, 22, 0.15);
   color: var(--text-primary);
 }
 
 .selectedUrgent {
-  border-color: var(--color-danger) !important;
+  border-color: var(--color-danger);
   background: rgba(239, 68, 68, 0.15);
   color: var(--text-primary);
 }

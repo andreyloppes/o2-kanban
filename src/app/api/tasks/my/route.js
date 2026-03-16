@@ -37,7 +37,7 @@ export async function GET(request) {
   // Buscar boards info
   const { data: boards } = await supabase
     .from('boards')
-    .select('id, title, color')
+    .select('id, title')
     .in('id', boardIds);
 
   // Buscar colunas dos boards (para saber quais sao done)
@@ -90,7 +90,7 @@ export async function GET(request) {
     return {
       ...task,
       board_title: board?.title || '',
-      board_color: board?.color || '',
+      board_color: '',
       column_title: col?.title || '',
       is_done: isDone,
       is_overdue: isOverdue,
@@ -106,7 +106,7 @@ export async function GET(request) {
   if (allMembers) {
     const { data: boardMembersData } = await supabase
       .from('board_members')
-      .select('user_id, slug, name, avatar_color, board_id, role')
+      .select('user_id, board_id, role, users(slug, name, avatar_color)')
       .in('board_id', boardIds);
     allMembersData = boardMembersData || [];
   }

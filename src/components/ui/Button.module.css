@@ -1,0 +1,127 @@
+/* ============================================
+   Button — Reusable Button Component
+   Uses design tokens from globals.css
+   ============================================ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === Sizes === */
+
+.sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.md {
+  padding: var(--space-2) var(--space-5);
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+}
+
+.lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+}
+
+/* === Variants === */
+
+.primary {
+  background: var(--gradient-accent);
+  color: var(--text-inverse);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.primary:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
+}
+
+.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+}
+
+.danger {
+  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+  color: var(--text-inverse);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+}
+
+.danger:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  transform: translateY(-1px);
+}
+
+/* === Loading State === */
+
+.loading {
+  color: transparent;
+  pointer-events: none;
+}
+
+.spinner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: currentColor;
+  border-radius: var(--radius-full);
+  animation: spin 0.6s linear infinite;
+}
+
+.primary .spinner,
+.danger .spinner {
+  border-color: rgba(255, 255, 255, 0.25);
+  border-top-color: var(--text-inverse);
+}
+
+.ghost .spinner,
+.secondary .spinner {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: var(--text-secondary);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

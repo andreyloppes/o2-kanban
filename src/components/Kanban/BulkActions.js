@@ -26,8 +26,8 @@ export default function BulkActions({ selectedIds, onClearSelection }) {
         const { updated_count } = await res.json();
         useUIStore.getState().addToast(`${updated_count} tarefas atualizadas`, 'success');
         onClearSelection();
-        // Reload page to reflect changes
-        window.location.reload();
+        const boardId = useBoardStore.getState().board?.id;
+        if (boardId) await useBoardStore.getState().fetchBoard(boardId);
       } else {
         useUIStore.getState().addToast('Erro na operacao em lote', 'error');
       }
@@ -53,7 +53,8 @@ export default function BulkActions({ selectedIds, onClearSelection }) {
           if (res.ok) {
             useUIStore.getState().addToast(`${count} tarefas excluidas`, 'success');
             onClearSelection();
-            window.location.reload();
+            const boardId = useBoardStore.getState().board?.id;
+            if (boardId) await useBoardStore.getState().fetchBoard(boardId);
           }
         } catch {}
         setIsProcessing(false);

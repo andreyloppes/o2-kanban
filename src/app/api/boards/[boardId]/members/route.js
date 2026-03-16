@@ -30,10 +30,13 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const { data: allUsers } = await supabase.from('users').select('*');
+  const memberUserIds = (boardMembers || []).map((bm) => bm.user_id);
+  const { data: boardUsers } = memberUserIds.length > 0
+    ? await supabase.from('users').select('id, name, slug, avatar_url, avatar_color').in('id', memberUserIds)
+    : { data: [] };
 
   const members = (boardMembers || []).map((bm) => {
-    const user = (allUsers || []).find((u) => u.id === bm.user_id);
+    const user = (boardUsers || []).find((u) => u.id === bm.user_id);
     return {
       id: bm.id,
       board_id: bm.board_id,

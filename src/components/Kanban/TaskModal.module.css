@@ -117,17 +117,23 @@
   gap: var(--space-3);
 }
 
+/* Button styles aligned with Button.module.css for future migration */
 .btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   padding: var(--space-2) var(--space-5);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-secondary);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .btnGhost:hover {
@@ -136,10 +142,19 @@
   color: var(--text-primary);
 }
 
+.btnGhost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   padding: var(--space-2) var(--space-5);
   background: var(--gradient-accent);
-  color: #fff;
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-md);
   font-size: 0.875rem;
@@ -147,10 +162,11 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  white-space: nowrap;
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
 }
 
-.btnPrimary:hover {
+.btnPrimary:hover:not(:disabled) {
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
   transform: translateY(-1px);
 }

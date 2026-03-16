@@ -13,7 +13,7 @@
   /* Text — Higher contrast */
   --text-primary: #f0f2f5;
   --text-secondary: #a1a8b4;
-  --text-muted: #5a6270;
+  --text-muted: #8891a0;
   --text-inverse: #000;
 
   /* Brand — Vivid emerald-to-cyan */
@@ -251,6 +251,30 @@
   /* Sidebar */
   --sidebar-bg: linear-gradient(180deg, #0a0c10 0%, #0d0f14 100%);
   --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-text: var(--text-secondary);
+  --sidebar-hover: rgba(255, 255, 255, 0.04);
+  --sidebar-text-active: var(--text-primary);
+
+  /* Interactive Backgrounds */
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-input: var(--input-bg);
+
+  /* Extended Shadows */
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  /* Extended Semantic Colors */
+  --color-high: #fb923c;
+  --color-accent: #6366f1;
+
+  /* Font Scale */
+  --text-2xs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
 }
 
 /* ============================================
@@ -268,7 +292,7 @@
   /* Text */
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-muted: #64748b;
   --text-inverse: #ffffff;
 
   /* Brand — slightly darker for white bg contrast */
@@ -360,6 +384,22 @@
   /* Gradient */
   --gradient-accent: linear-gradient(135deg, #059669 0%, #0891b2 100%);
   --gradient-accent-subtle: linear-gradient(135deg, rgba(5,150,105,0.08), rgba(8,145,178,0.08));
+
+  /* Sidebar */
+  --sidebar-text: var(--text-secondary);
+  --sidebar-hover: rgba(0, 0, 0, 0.04);
+  --sidebar-text-active: var(--text-primary);
+
+  /* Interactive Backgrounds */
+  --bg-hover: rgba(0, 0, 0, 0.06);
+  --bg-input: var(--input-bg);
+
+  /* Extended Shadows */
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.06);
+
+  /* Extended Semantic Colors */
+  --color-high: #ea580c;
+  --color-accent: #4f46e5;
 }
 
 /* ============================================
@@ -425,4 +465,17 @@ select:focus {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-hover);
+}
+
+/* ============================================
+   Reduced Motion — Accessibility
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

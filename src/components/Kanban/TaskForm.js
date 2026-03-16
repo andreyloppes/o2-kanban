@@ -58,17 +58,51 @@ export default function TaskForm() {
     useUIStore.getState().closeCreateModal();
   }, []);
 
-  // Escape para fechar
+  // Escape para fechar + Cmd+Enter para submeter
   useEffect(() => {
     if (!isOpen) return;
     function handleKeyDown(e) {
       if (e.key === "Escape") {
         handleClose();
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        const form = modalRef.current?.querySelector("form");
+        if (form) form.requestSubmit();
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleClose]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!isOpen) return;
+    const modal = modalRef.current;
+    if (!modal) return;
+    const focusableElements = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    function handleTabTrap(e) {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+    modal.addEventListener('keydown', handleTabTrap);
+    return () => modal.removeEventListener('keydown', handleTabTrap);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

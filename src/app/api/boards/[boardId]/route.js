@@ -54,10 +54,13 @@ export async function GET(request, { params }) {
     .select('*')
     .eq('board_id', boardId);
 
-  const { data: allUsers } = await supabase.from('users').select('*');
+  const memberUserIds = (boardMembers || []).map((bm) => bm.user_id);
+  const { data: boardUsers } = memberUserIds.length > 0
+    ? await supabase.from('users').select('id, name, slug, avatar_url, avatar_color').in('id', memberUserIds)
+    : { data: [] };
 
   const members = (boardMembers || []).map((bm) => {
-    const user = (allUsers || []).find((u) => u.id === bm.user_id);
+    const user = (boardUsers || []).find((u) => u.id === bm.user_id);
     return {
       ...bm,
       user: user || null,

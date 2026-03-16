@@ -94,5 +94,39 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Activity log (fire-and-forget)
+  if (user && comment) {
+    supabase.from('activity_log').insert({
+      board_id: task.board_id,
+      task_id: taskId,
+      user_id: user.id,
+      action: 'comment_added',
+      metadata: { comment_id: comment.id, author },
+    }).then(() => {}).catch(() => {});
+  }
+
+  // Notification: notify task assignee about new comment (fire-and-forget)
+  if (user && comment) {
+    supabase.from('tasks').select('assignee, title').eq('id', taskId).single()
+      .then(({ data: fullTask }) => {
+        if (fullTask?.assignee) {
+          // Find assignee user_id by slug
+          supabase.from('users').select('id').eq('slug', fullTask.assignee).single()
+            .then(({ data: assigneeUser }) => {
+              if (assigneeUser && assigneeUser.id !== user.id) {
+                supabase.from('notifications').insert({
+                  user_id: assigneeUser.id,
+                  board_id: task.board_id,
+                  task_id: taskId,
+                  type: 'comment',
+                  title: `Novo comentario em "${fullTask.title}"`,
+                  body: `${author}: ${content.substring(0, 100)}`,
+                }).then(() => {}).catch(() => {});
+              }
+            }).catch(() => {});
+        }
+      }).catch(() => {});
+  }
+
   return NextResponse.json({ comment }, { status: 201 });
 }

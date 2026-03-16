@@ -70,7 +70,7 @@
 .priority-low { color: var(--color-neutral); }
 .priority-medium { color: var(--color-warning); }
 .priority-high { color: var(--color-danger); }
-.priority-urgent { color: #ff4444; }
+.priority-urgent { color: var(--color-danger); }
 
 .danger {
   color: var(--color-danger);

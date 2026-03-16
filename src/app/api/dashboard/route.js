@@ -17,12 +17,11 @@ export async function GET() {
     return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 });
   }
 
-  // Buscar boards onde o user e owner
+  // Buscar boards onde o user e membro (qualquer role)
   const { data: memberships } = await supabase
     .from('board_members')
     .select('board_id')
-    .eq('user_id', user.id)
-    .eq('role', 'owner');
+    .eq('user_id', user.id);
 
   const boardIds = (memberships || []).map((m) => m.board_id);
 
@@ -64,7 +63,7 @@ export async function GET() {
       supabase.from('tasks').select('*').eq('board_id', boardId),
       supabase
         .from('board_members')
-        .select('user_id, role, slug, name, avatar_color')
+        .select('user_id, role, users(slug, name, avatar_color)')
         .eq('board_id', boardId),
       supabase
         .from('task_execution_log')
@@ -160,12 +159,13 @@ export async function GET() {
 
     // Members aggregation
     for (const m of members) {
-      const slug = m.slug || m.name || m.user_id;
+      const userInfo = m.users || {};
+      const slug = userInfo.slug || userInfo.name || m.user_id;
       if (!memberMap[slug]) {
         memberMap[slug] = {
           slug,
-          name: m.name || slug,
-          avatar_color: m.avatar_color || '#6b7280',
+          name: userInfo.name || slug,
+          avatar_color: userInfo.avatar_color || '#6b7280',
           total_tasks: 0,
           completed_tasks: 0,
           in_progress_tasks: 0,

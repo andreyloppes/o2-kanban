@@ -65,7 +65,7 @@
 
 .btnDanger:hover {
   background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 /* Edit mode */
@@ -195,10 +195,10 @@
 
 .btnDeleteConfirm {
   padding: 4px 10px;
-  background: #ef4444;
+  background: var(--color-danger);
   border: none;
   border-radius: var(--radius-sm);
-  color: #fff;
+  color: var(--text-inverse);
   font-size: 0.75rem;
   font-weight: 600;
   font-family: inherit;
@@ -207,7 +207,7 @@
 }
 
 .btnDeleteConfirm:hover:not(:disabled) {
-  background: #dc2626;
+  background: #dc2626; /* darker danger for hover state */
 }
 
 .btnDeleteConfirm:disabled {

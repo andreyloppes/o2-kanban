@@ -137,7 +137,7 @@
   height: 36px;
   border: none;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: var(--transition-fast);
@@ -207,7 +207,7 @@
 }
 
 .actionError {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 @keyframes fadeIn {

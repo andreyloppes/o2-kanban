@@ -19,18 +19,22 @@ async function getUserBoardRole(supabase, boardId) {
 }
 
 async function fetchBoardData(supabase, boardId) {
-  const [boardRes, columnsRes, tasksRes, membersRes, usersRes] = await Promise.all([
+  const [boardRes, columnsRes, tasksRes, membersRes] = await Promise.all([
     supabase.from('boards').select('*').eq('id', boardId).single(),
     supabase.from('columns').select('*').eq('board_id', boardId).order('position', { ascending: true }),
     supabase.from('tasks').select('*').eq('board_id', boardId).order('position', { ascending: true }),
     supabase.from('board_members').select('*').eq('board_id', boardId),
-    supabase.from('users').select('*'),
   ]);
 
   if (boardRes.error || !boardRes.data) return null;
 
+  const memberUserIds = (membersRes.data || []).map((bm) => bm.user_id);
+  const { data: boardUsers } = memberUserIds.length > 0
+    ? await supabase.from('users').select('id, name, slug, avatar_url, avatar_color').in('id', memberUserIds)
+    : { data: [] };
+
   const members = (membersRes.data || []).map((bm) => {
-    const user = (usersRes.data || []).find((u) => u.id === bm.user_id);
+    const user = (boardUsers || []).find((u) => u.id === bm.user_id);
     return { ...bm, user: user || null };
   });
 

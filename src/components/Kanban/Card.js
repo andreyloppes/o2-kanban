@@ -78,18 +78,9 @@ export default function Card({ task }) {
 
       <p className="card-title">{task.title}</p>
 
-      {(task.priority || (task.tags && task.tags.length > 0)) && (
+      {task.priority && (
         <div className="tags-container">
-          {task.priority && <Badge priority={task.priority} size="sm" />}
-          {task.tags &&
-            task.tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className={`tag tag-${tag.toLowerCase().replace(/\s+/g, "-")}`}
-              >
-                {tag}
-              </span>
-            ))}
+          <Badge priority={task.priority} size="sm" />
         </div>
       )}
 

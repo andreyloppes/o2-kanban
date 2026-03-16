@@ -6,10 +6,10 @@ import { POSITION_GAP, DEFAULT_COLUMNS } from '@/lib/constants';
 export async function GET() {
   const supabase = await createServerClient();
 
-  // Buscar TODOS os boards (visibilidade global)
+  // Buscar TODOS os boards com contagens agregadas
   const { data: boards, error } = await supabase
     .from('boards')
-    .select('*')
+    .select('*, board_members(count), tasks(count)')
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -32,29 +32,20 @@ export async function GET() {
     });
   }
 
-  // Enrich with member_count, task_count e can_edit
-  const enriched = await Promise.all(
-    (boards || []).map(async (board) => {
-      const { data: members } = await supabase
-        .from('board_members')
-        .select('id')
-        .eq('board_id', board.id);
-
-      const { data: tasks } = await supabase
-        .from('tasks')
-        .select('id')
-        .eq('board_id', board.id);
-
-      const userRole = userMemberships[board.id] || null;
-      return {
-        ...board,
-        member_count: members?.length || 0,
-        task_count: tasks?.length || 0,
-        can_edit: !!userRole,
-        is_owner: userRole === 'owner',
-      };
-    })
-  );
+  // Enrich with can_edit and flatten counts
+  const enriched = (boards || []).map((board) => {
+    const userRole = userMemberships[board.id] || null;
+    const memberCount = board.board_members?.[0]?.count || 0;
+    const taskCount = board.tasks?.[0]?.count || 0;
+    const { board_members: _bm, tasks: _t, ...boardData } = board;
+    return {
+      ...boardData,
+      member_count: memberCount,
+      task_count: taskCount,
+      can_edit: !!userRole,
+      is_owner: userRole === 'owner',
+    };
+  });
 
   return NextResponse.json({ boards: enriched });
 }

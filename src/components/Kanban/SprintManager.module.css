@@ -110,7 +110,7 @@
 .actionBtn {
   padding: 2px 8px;
   background: var(--accent);
-  color: white;
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-sm);
   font-size: 0.68rem;
@@ -214,7 +214,7 @@
 .submitBtn {
   padding: var(--space-2) var(--space-3);
   background: var(--accent);
-  color: white;
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-sm);
   font-size: 0.78rem;

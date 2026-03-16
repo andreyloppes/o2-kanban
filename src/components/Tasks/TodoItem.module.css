@@ -27,7 +27,7 @@
   align-items: center;
   justify-content: center;
   margin-top: 2px;
-  color: white;
+  color: var(--text-inverse);
   transition: border-color 0.15s, background 0.15s;
 }
 
@@ -80,7 +80,7 @@
   padding: 1px 6px;
   border-radius: var(--radius-full);
   background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
+  color: var(--color-info);
   font-weight: 500;
 }
 
@@ -103,7 +103,7 @@
 }
 
 .dateOverdue {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .assigneeBadge {

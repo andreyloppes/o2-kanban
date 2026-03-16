@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users, BarChart3, Zap } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, Users, BarChart3, Zap, MoreHorizontal } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { staggerContainer } from '@/lib/motion';
 import useBoardStore from '@/stores/useBoardStore';
@@ -16,6 +17,115 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 import BulkActions from './BulkActions';
 import SprintManager from './SprintManager';
 import ChatPanel from '@/components/AI/ChatPanel';
+
+function BoardMoreMenu({ board, router }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
+
+  return (
+    <div style={{ position: 'relative' }} ref={menuRef}>
+      <button
+        className="members-btn"
+        onClick={() => setOpen((v) => !v)}
+        title="Mais opcoes"
+        aria-label="Mais opcoes"
+      >
+        <MoreHorizontal size={16} />
+      </button>
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: '100%',
+            marginTop: '4px',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md, 8px)',
+            boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15))',
+            minWidth: '180px',
+            zIndex: 100,
+            padding: '4px 0',
+          }}
+        >
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: '100%',
+              padding: '8px 12px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-primary)',
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              textAlign: 'left',
+            }}
+            onClick={() => { setOpen(false); router.push(`/board/${board.id}/analytics`); }}
+          >
+            <BarChart3 size={15} />
+            Analitico
+          </button>
+          {board?.is_owner && (
+            <button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                width: '100%',
+                padding: '8px 12px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-primary)',
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                textAlign: 'left',
+              }}
+              onClick={() => { setOpen(false); router.push(`/board/${board.id}/automations`); }}
+            >
+              <Zap size={15} />
+              Automacoes
+            </button>
+          )}
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: '100%',
+              padding: '8px 12px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-primary)',
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              textAlign: 'left',
+            }}
+            onClick={() => { setOpen(false); router.push(`/board/${board.id}/members`); }}
+          >
+            <Users size={15} />
+            Membros
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Board({ title, children }) {
   const router = useRouter();
@@ -81,32 +191,7 @@ export default function Board({ title, children }) {
           <AIToggleButton />
           <ViewToggle />
           {board?.can_edit ? (
-            <>
-              <button
-                className="members-btn"
-                onClick={() => router.push(`/board/${board.id}/analytics`)}
-                title="Analitico"
-              >
-                <BarChart3 size={16} />
-              </button>
-              {board?.is_owner && (
-                <button
-                  className="members-btn"
-                  onClick={() => router.push(`/board/${board.id}/automations`)}
-                  title="Automacoes"
-                >
-                  <Zap size={16} />
-                </button>
-              )}
-              <button
-                className="members-btn"
-                onClick={() => router.push(`/board/${board.id}/members`)}
-                title="Gerenciar membros"
-              >
-                <Users size={16} />
-                <span>Membros</span>
-              </button>
-            </>
+            <BoardMoreMenu board={board} router={router} />
           ) : (
             <JoinRequestButton />
           )}

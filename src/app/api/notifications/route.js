@@ -17,7 +17,7 @@ export async function GET(request) {
   const { data: userData } = await supabase
     .from('users')
     .select('id')
-    .eq('auth_id', authUser.id)
+    .eq('id', authUser.id)
     .single();
 
   if (!userData) {
@@ -64,7 +64,7 @@ export async function PATCH(request) {
   const { data: userData } = await supabase
     .from('users')
     .select('id')
-    .eq('auth_id', authUser.id)
+    .eq('id', authUser.id)
     .single();
 
   if (!userData) {

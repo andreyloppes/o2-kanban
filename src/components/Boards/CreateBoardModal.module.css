@@ -161,7 +161,7 @@
 .btnPrimary {
   padding: var(--space-2) var(--space-5);
   background: var(--gradient-accent);
-  color: #fff;
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-md);
   font-size: 0.875rem;

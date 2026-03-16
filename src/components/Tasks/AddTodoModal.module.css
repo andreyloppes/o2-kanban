@@ -11,7 +11,7 @@
 }
 
 .modal {
-  background: var(--board-column-bg, #1e1e2e);
+  background: var(--board-column-bg, var(--bg-surface));
   border: 1px solid var(--board-card-border);
   border-radius: var(--radius-xl, 12px);
   width: 100%;
@@ -83,7 +83,7 @@
 }
 
 .required {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .input,
@@ -107,7 +107,7 @@
 }
 
 .select option {
-  background: #1e1e2e;
+  background: var(--bg-surface);
 }
 
 .textarea {

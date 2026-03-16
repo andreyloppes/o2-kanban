@@ -62,7 +62,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #fff;
+  color: var(--text-inverse);
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
   transition: box-shadow var(--transition), transform var(--transition);
 }
@@ -75,7 +75,7 @@
 .logo-text {
   font-weight: 700;
   font-size: 1.1rem;
-  color: #fff;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
@@ -96,8 +96,8 @@
 }
 
 .collapse-btn:hover {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -148,7 +148,7 @@
 }
 
 .nav-item.active {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -223,14 +223,14 @@
 }
 
 .back-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
 .header-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -256,7 +256,7 @@
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-inverse);
   margin-left: -8px;
   background-color: var(--color-neutral);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow var(--transition);
@@ -287,7 +287,7 @@
 }
 
 .avatar-more {
-  background-color: #374151;
+  background-color: var(--color-neutral);
   z-index: 0;
 }
 
@@ -327,8 +327,8 @@
 }
 
 .header-icon-btn:hover {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
 }
 
 /* === Board Content === */
@@ -641,7 +641,7 @@
   background: var(--accent);
   border: none;
   border-radius: var(--radius-sm);
-  color: white;
+  color: var(--text-inverse);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -915,8 +915,8 @@
   justify-content: center;
   font-size: 0.7rem;
   font-weight: bold;
-  color: #fff;
-  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  color: var(--text-inverse);
+  background: linear-gradient(135deg, #3b82f6 0%, var(--color-accent) 100%);
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
 }
 
@@ -1064,7 +1064,7 @@
 .page-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -1510,7 +1510,7 @@
   background: var(--accent);
   border: none;
   border-radius: var(--radius-md);
-  color: white;
+  color: var(--text-inverse);
   cursor: pointer;
   padding: var(--space-2);
   display: flex;

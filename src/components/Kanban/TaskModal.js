@@ -98,6 +98,8 @@ export default function TaskModal() {
   const board = useBoardStore((state) => state.board);
   const canEdit = board?.can_edit;
 
+  const modalRef = useRef(null);
+
   // Editable state
   const [editTitle, setEditTitle] = useState("");
   const [editType, setEditType] = useState("task");
@@ -220,17 +222,52 @@ export default function TaskModal() {
     }
   }, [isDirty]);
 
-  // Escape to close
+  const handleSaveRef = useRef(null);
+
+  // Escape to close + Cmd+Enter to save
   useEffect(() => {
     if (!activeTaskId) return;
     function handleKeyDown(e) {
       if (e.key === "Escape") {
         handleClose();
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (handleSaveRef.current) handleSaveRef.current();
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [activeTaskId, handleClose]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!activeTaskId) return;
+    const modal = modalRef.current;
+    if (!modal) return;
+    const focusableElements = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    function handleTabTrap(e) {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+    modal.addEventListener('keydown', handleTabTrap);
+    return () => modal.removeEventListener('keydown', handleTabTrap);
+  }, [activeTaskId]);
 
   if (!activeTaskId || !task) return null;
 
@@ -284,6 +321,7 @@ export default function TaskModal() {
       setIsSaving(false);
     }
   }
+  handleSaveRef.current = handleSave;
 
   function handleDelete() {
     useUIStore.getState().showConfirmDialog({
@@ -326,7 +364,7 @@ export default function TaskModal() {
       animate="visible"
       exit="exit"
     >
-      <motion.div className={styles.modal} variants={modalContent}>
+      <motion.div className={styles.modal} variants={modalContent} ref={modalRef}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <TypeIcon size={16} />

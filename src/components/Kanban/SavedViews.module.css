@@ -229,7 +229,7 @@
   border: none;
   border-radius: var(--radius-sm);
   background: var(--accent);
-  color: white;
+  color: var(--text-inverse);
   cursor: pointer;
   transition: background var(--transition-fast);
   flex-shrink: 0;

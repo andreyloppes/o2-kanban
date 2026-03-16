@@ -135,7 +135,7 @@
 .submitBtn {
   height: var(--input-height);
   background: var(--gradient-accent);
-  color: #fff;
+  color: var(--text-inverse);
   font-weight: 600;
   font-size: 0.875rem;
   border: none;

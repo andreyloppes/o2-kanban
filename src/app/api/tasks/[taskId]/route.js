@@ -1,28 +1,22 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { updateTaskSchema } from '@/lib/validators';
+import { getAuthUser, checkMembership } from '@/lib/auth';
 
-async function checkTaskPermission(supabase, taskId) {
+async function checkTaskPermissionLocal(supabase, taskId) {
   const { data: task } = await supabase
     .from('tasks')
-    .select('board_id')
+    .select('*')
     .eq('id', taskId)
     .single();
-  if (!task) return { allowed: false, task: null };
+  if (!task) return { allowed: false, task: null, user: null };
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { allowed: true, task }; // mock mode
+  const user = await getAuthUser(supabase);
+  if (!user) return { allowed: false, task, user: null };
 
-  const { data: membership } = await supabase
-    .from('board_members')
-    .select('id')
-    .eq('board_id', task.board_id)
-    .eq('user_id', user.id)
-    .limit(1);
+  const isMember = await checkMembership(supabase, task.board_id, user.id);
 
-  return { allowed: membership && membership.length > 0, task };
+  return { allowed: isMember, task, user };
 }
 
 export async function GET(request, { params }) {
@@ -50,7 +44,7 @@ export async function PATCH(request, { params }) {
   const supabase = await createServerClient();
 
   // Verificar permissao
-  const { allowed } = await checkTaskPermission(supabase, taskId);
+  const { allowed, task: existingTask, user } = await checkTaskPermissionLocal(supabase, taskId);
   if (!allowed) {
     return NextResponse.json(
       { error: 'Sem permissao para editar esta tarefa' },
@@ -83,6 +77,36 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Activity log (fire-and-forget)
+  if (user && task) {
+    const changedFields = Object.keys(parsed.data);
+    supabase.from('activity_log').insert({
+      board_id: task.board_id,
+      task_id: task.id,
+      user_id: user.id,
+      action: 'task_updated',
+      metadata: { changed_fields: changedFields, updates: parsed.data },
+    }).then(() => {}).catch(() => {});
+  }
+
+  // Notification: task assigned to someone new (fire-and-forget)
+  if (user && task && parsed.data.assignee && parsed.data.assignee !== existingTask?.assignee) {
+    // Find the user_id of the new assignee by slug
+    supabase.from('users').select('id').eq('slug', parsed.data.assignee).single()
+      .then(({ data: assigneeUser }) => {
+        if (assigneeUser && assigneeUser.id !== user.id) {
+          supabase.from('notifications').insert({
+            user_id: assigneeUser.id,
+            board_id: task.board_id,
+            task_id: task.id,
+            type: 'assigned',
+            title: `Voce foi atribuido a tarefa "${task.title}"`,
+            body: `Atribuido por ${user.email || 'um membro do board'}`,
+          }).then(() => {}).catch(() => {});
+        }
+      }).catch(() => {});
+  }
+
   return NextResponse.json({ task });
 }
 
@@ -91,7 +115,7 @@ export async function DELETE(request, { params }) {
   const supabase = await createServerClient();
 
   // Verificar permissao
-  const { allowed } = await checkTaskPermission(supabase, taskId);
+  const { allowed, task: existingTask, user } = await checkTaskPermissionLocal(supabase, taskId);
   if (!allowed) {
     return NextResponse.json(
       { error: 'Sem permissao para deletar esta tarefa' },
@@ -111,6 +135,17 @@ export async function DELETE(request, { params }) {
 
   if (!data || data.length === 0) {
     return NextResponse.json({ error: 'Tarefa nao encontrada' }, { status: 404 });
+  }
+
+  // Activity log (fire-and-forget)
+  if (user && existingTask) {
+    supabase.from('activity_log').insert({
+      board_id: existingTask.board_id,
+      task_id: taskId,
+      user_id: user.id,
+      action: 'task_deleted',
+      metadata: { title: existingTask.title },
+    }).then(() => {}).catch(() => {});
   }
 
   return NextResponse.json({ success: true });

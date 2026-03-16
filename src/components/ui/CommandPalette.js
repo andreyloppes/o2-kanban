@@ -19,41 +19,41 @@ import useUIStore from '@/stores/useUIStore';
 import styles from './CommandPalette.module.css';
 
 const CATEGORY_ICONS = {
-  Navigation: ArrowRight,
-  Actions: PlusCircle,
-  Filters: Filter,
+  'Navegacao': ArrowRight,
+  'Acoes': PlusCircle,
+  'Filtros': Filter,
 };
 
 const BADGE_STYLES = {
-  Navigation: styles.badgeNavigation,
-  Actions: styles.badgeAction,
-  Filters: styles.badgeFilter,
+  'Navegacao': styles.badgeNavigation,
+  'Acoes': styles.badgeAction,
+  'Filtros': styles.badgeFilter,
 };
 
 function buildCommands(boards = []) {
   const commands = [];
 
-  // === Navigation ===
+  // === Navegacao ===
   commands.push({
     id: 'nav-boards',
-    name: 'Go to Boards',
-    category: 'Navigation',
+    name: 'Ir para Quadros',
+    category: 'Navegacao',
     icon: Layout,
     action: (router) => router.push('/'),
   });
 
   commands.push({
     id: 'nav-dashboard',
-    name: 'Go to Dashboard',
-    category: 'Navigation',
+    name: 'Ir para Dashboard',
+    category: 'Navegacao',
     icon: LayoutDashboard,
     action: (router) => router.push('/dashboard'),
   });
 
   commands.push({
     id: 'nav-settings',
-    name: 'Go to Settings',
-    category: 'Navigation',
+    name: 'Ir para Configuracoes',
+    category: 'Navegacao',
     icon: Settings,
     action: (router) => router.push('/settings'),
   });
@@ -61,70 +61,69 @@ function buildCommands(boards = []) {
   boards.forEach((board) => {
     commands.push({
       id: `nav-board-${board.id}`,
-      name: `Go to Board: ${board.title}`,
-      category: 'Navigation',
+      name: `Ir para Quadro: ${board.title}`,
+      category: 'Navegacao',
       icon: Kanban,
       action: (router) => router.push(`/board/${board.id}`),
     });
   });
 
-  // === Actions ===
+  // === Acoes ===
   commands.push({
     id: 'action-create-task',
-    name: 'Create Task',
-    category: 'Actions',
+    name: 'Criar nova tarefa',
+    category: 'Acoes',
     icon: PlusCircle,
     action: () => useUIStore.getState().openCreateModal(),
   });
 
   commands.push({
     id: 'action-toggle-sidebar',
-    name: 'Toggle Sidebar',
-    category: 'Actions',
+    name: 'Alternar barra lateral',
+    category: 'Acoes',
     icon: Sidebar,
     action: () => useUIStore.getState().toggleSidebar(),
   });
 
   commands.push({
     id: 'action-toggle-ai',
-    name: 'Toggle AI Chat',
-    category: 'Actions',
+    name: 'Alternar Chat IA',
+    category: 'Acoes',
     icon: MessageSquare,
     action: () => useUIStore.getState().toggleAIChat(),
   });
 
-  // === Filters ===
+  // === Filtros ===
   commands.push({
     id: 'filter-high-priority',
-    name: 'Filter: High Priority',
-    category: 'Filters',
+    name: 'Filtro: Prioridade Alta',
+    category: 'Filtros',
     icon: Filter,
     action: () => useUIStore.getState().setFilter('priority', 'high'),
   });
 
   commands.push({
     id: 'filter-urgent',
-    name: 'Filter: Urgent',
-    category: 'Filters',
+    name: 'Filtro: Urgente',
+    category: 'Filtros',
     icon: Filter,
     action: () => useUIStore.getState().setFilter('priority', 'urgent'),
   });
 
   commands.push({
     id: 'filter-bugs',
-    name: 'Filter: Bugs Only',
-    category: 'Filters',
+    name: 'Filtro: Apenas Bugs',
+    category: 'Filtros',
     icon: Filter,
     action: () => useUIStore.getState().setFilter('type', 'bug'),
   });
 
   commands.push({
     id: 'filter-my-tasks',
-    name: 'Filter: My Tasks',
-    category: 'Filters',
+    name: 'Filtro: Minhas Tarefas',
+    category: 'Filtros',
     icon: Filter,
     action: () => {
-      // currentUser slug is read at execution time
       try {
         const { default: useUserStore } = require('@/stores/useUserStore');
         const user = useUserStore.getState().currentUser;
@@ -139,8 +138,8 @@ function buildCommands(boards = []) {
 
   commands.push({
     id: 'filter-clear',
-    name: 'Clear Filters',
-    category: 'Filters',
+    name: 'Limpar Filtros',
+    category: 'Filtros',
     icon: X,
     action: () => useUIStore.getState().clearFilters(),
   });
@@ -155,7 +154,7 @@ function fuzzyMatch(query, text) {
 
 function groupByCategory(items) {
   const groups = {};
-  const order = ['Navigation', 'Actions', 'Filters'];
+  const order = ['Navegacao', 'Acoes', 'Filtros'];
 
   items.forEach((item) => {
     if (!groups[item.category]) {
@@ -294,7 +293,7 @@ export default function CommandPalette({ isOpen, onClose, boards = [] }) {
             ref={inputRef}
             type="text"
             className={styles.searchInput}
-            placeholder="Type a command or search..."
+            placeholder="Digite um comando ou pesquise..."
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -309,7 +308,7 @@ export default function CommandPalette({ isOpen, onClose, boards = [] }) {
           {flatList.length === 0 ? (
             <div className={styles.empty}>
               <Search size={24} className={styles.emptyIcon} />
-              <span>No results found for &ldquo;{query}&rdquo;</span>
+              <span>Nenhum resultado para &ldquo;{query}&rdquo;</span>
             </div>
           ) : (
             grouped.map((group) => {
@@ -358,15 +357,15 @@ export default function CommandPalette({ isOpen, onClose, boards = [] }) {
             <span className={styles.footerHint}>
               <span className={styles.footerKey}>&uarr;</span>
               <span className={styles.footerKey}>&darr;</span>
-              navigate
+              navegar
             </span>
             <span className={styles.footerHint}>
               <span className={styles.footerKey}>Enter</span>
-              select
+              selecionar
             </span>
             <span className={styles.footerHint}>
               <span className={styles.footerKey}>Esc</span>
-              close
+              fechar
             </span>
           </div>
         </div>

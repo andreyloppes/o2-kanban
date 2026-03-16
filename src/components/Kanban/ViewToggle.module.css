@@ -28,10 +28,10 @@
 
 .active {
   background: var(--accent);
-  color: white;
+  color: var(--text-inverse);
 }
 
 .active:hover {
   background: var(--accent);
-  color: white;
+  color: var(--text-inverse);
 }

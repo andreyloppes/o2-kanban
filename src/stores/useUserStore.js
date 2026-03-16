@@ -1,36 +1,14 @@
 import { create } from 'zustand';
-import { CURRENT_USER_KEY } from '@/lib/constants';
-
-const isMock =
-  typeof window !== 'undefined' &&
-  (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL.includes('SEU-PROJETO'));
 
 const useUserStore = create((set, get) => ({
   currentUser: null,
   allUsers: [],
   isLoaded: false,
 
-  // Inicializar usuario — auth mode ou mock mode
+  // Inicializar usuario — buscar perfil do usuario autenticado
   initialize: async () => {
     if (typeof window === 'undefined') return;
 
-    if (isMock) {
-      // Mock mode: carregar do localStorage
-      try {
-        const saved = localStorage.getItem(CURRENT_USER_KEY);
-        if (saved) {
-          set({ currentUser: JSON.parse(saved), isLoaded: true });
-        } else {
-          set({ isLoaded: true });
-        }
-      } catch {
-        set({ isLoaded: true });
-      }
-      return;
-    }
-
-    // Auth mode: buscar perfil do usuario autenticado
     try {
       const res = await fetch('/api/users/me');
       if (res.ok) {
@@ -44,29 +22,13 @@ const useUserStore = create((set, get) => ({
     }
   },
 
-  // Manter para compatibilidade com mock mode
-  loadCurrentUser: () => {
-    get().initialize();
-  },
-
-  // Set and persist current user (mock mode)
+  // Set current user
   setCurrentUser: (user) => {
-    if (typeof window !== 'undefined' && isMock) {
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-    }
     set({ currentUser: user });
   },
 
   // Sign out
   signOut: async () => {
-    if (isMock) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(CURRENT_USER_KEY);
-      }
-      set({ currentUser: null });
-      return;
-    }
-
     try {
       const { getSupabaseClient } = await import('@/lib/supabase/client');
       const supabase = getSupabaseClient();
@@ -109,11 +71,7 @@ const useUserStore = create((set, get) => ({
       // Update currentUser if same user
       const current = get().currentUser;
       if (current && current.id === userId) {
-        const updated = { ...current, ...user };
-        if (typeof window !== 'undefined' && isMock) {
-          localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updated));
-        }
-        set({ currentUser: updated });
+        set({ currentUser: { ...current, ...user } });
       }
 
       return user;

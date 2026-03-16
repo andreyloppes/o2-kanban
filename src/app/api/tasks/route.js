@@ -92,5 +92,16 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Activity log (fire-and-forget)
+  if (user && task) {
+    supabase.from('activity_log').insert({
+      board_id: task.board_id,
+      task_id: task.id,
+      user_id: user.id,
+      action: 'task_created',
+      metadata: { title: task.title, column_id: task.column_id, priority: task.priority },
+    }).then(() => {}).catch(() => {});
+  }
+
   return NextResponse.json({ task }, { status: 201 });
 }

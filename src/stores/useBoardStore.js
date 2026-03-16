@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { POSITION_GAP } from '@/lib/constants';
 import useUIStore from '@/stores/useUIStore';
+import { runAutomations } from '@/lib/automations/engine';
 
 const useBoardStore = create((set, get) => ({
   // === State ===
@@ -23,35 +24,6 @@ const useBoardStore = create((set, get) => ({
       .sort((a, b) => a.position - b.position);
   },
 
-  getFilteredTasksByColumn: (columnId) => {
-    const { filters } = useUIStore.getState();
-    let tasks = get().tasks.filter((t) => t.column_id === columnId);
-
-    if (filters.type) {
-      tasks = tasks.filter((t) => t.type === filters.type);
-    }
-    if (filters.priority) {
-      tasks = tasks.filter((t) => t.priority === filters.priority);
-    }
-    if (filters.assignee) {
-      if (filters.assignee === '__unassigned__') {
-        tasks = tasks.filter((t) => !t.assignee);
-      } else {
-        tasks = tasks.filter((t) => t.assignee === filters.assignee);
-      }
-    }
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      tasks = tasks.filter(
-        (t) =>
-          t.title.toLowerCase().includes(searchLower) ||
-          (t.description && t.description.toLowerCase().includes(searchLower))
-      );
-    }
-
-    return tasks.sort((a, b) => a.position - b.position);
-  },
-
   getTaskById: (taskId) => {
     return get().tasks.find((t) => t.id === taskId);
   },
@@ -72,6 +44,24 @@ const useBoardStore = create((set, get) => ({
 
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error, isLoading: false }),
+
+  fetchBoard: async (boardId) => {
+    try {
+      const res = await fetch(`/api/boards/${boardId}`);
+      if (!res.ok) throw new Error('Falha ao carregar o board');
+      const data = await res.json();
+      set({
+        board: data.board,
+        columns: data.columns,
+        tasks: data.tasks,
+        members: data.members,
+        isLoading: false,
+        error: null,
+      });
+    } catch (err) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
 
   // === Actions: Column CRUD ===
 
@@ -334,6 +324,15 @@ const useBoardStore = create((set, get) => ({
         tasks: state.tasks.map((t) => (t.id === tempId ? savedTask : t)),
       }));
 
+      // Fire-and-forget: executar automacoes de task criada
+      const boardId = get().board?.id;
+      if (boardId) {
+        runAutomations(boardId, 'task_created', {
+          taskId: savedTask.id,
+          columnId: savedTask.column_id,
+        }).catch(() => {});
+      }
+
       return savedTask;
     } catch (error) {
       // Rollback
@@ -474,6 +473,16 @@ const useBoardStore = create((set, get) => ({
             headers: { 'Content-Type': 'application/json' },
           }).catch(() => {});
         }
+
+        // Fire-and-forget: executar automacoes de task movida
+        const boardId = get().board?.id;
+        if (boardId) {
+          runAutomations(boardId, 'task_moved_to_column', {
+            taskId,
+            columnId: targetColumnId,
+            previousColumnId: previousTask.column_id,
+          }).catch(() => {});
+        }
       }
 
       return true;
@@ -535,12 +544,17 @@ const useBoardStore = create((set, get) => ({
       ),
     }));
 
-    // Persist silently
+    // Persist com tratamento de erro
     fetch(`/api/tasks/${taskId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ timer_elapsed_ms: newElapsed, timer_running: false, timer_started_at: null }),
-    }).catch(() => {});
+    })
+      .then(res => { if (!res.ok) throw new Error('Falha ao salvar timer'); })
+      .catch(() => {
+        const addToast = useUIStore.getState().addToast;
+        if (addToast) addToast('Erro ao salvar tempo registrado. Tente novamente.', 'error');
+      });
   },
 
   /**
@@ -556,12 +570,17 @@ const useBoardStore = create((set, get) => ({
       ),
     }));
 
-    // Persist silently
+    // Persist com tratamento de erro
     fetch(`/api/tasks/${taskId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ timer_elapsed_ms: 0, timer_running: false, timer_started_at: null }),
-    }).catch(() => {});
+    })
+      .then(res => { if (!res.ok) throw new Error('Falha ao salvar timer'); })
+      .catch(() => {
+        const addToast = useUIStore.getState().addToast;
+        if (addToast) addToast('Erro ao salvar tempo registrado. Tente novamente.', 'error');
+      });
   },
 
   // === Actions: Comments ===
